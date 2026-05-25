@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
-import { getCategory, type Category } from "@/lib/products";
+import { getCategory, type Category, type ProductGroup, type Product } from "@/lib/products";
 import { ChevronRight, Package } from "lucide-react";
 
 export const Route = createFileRoute("/products/$category")({
@@ -45,14 +45,14 @@ function CategoryPage() {
         <span className="text-navy">{category.name}</span>
       </nav>
       <section className="mx-auto max-w-7xl px-6 py-12">
-        {category.groups.map((group) => (
+        {category.groups.map((group: ProductGroup) => (
           <div key={group.name} className="mb-12">
             <div className="mb-5 flex items-baseline justify-between border-b border-border pb-3">
               <h2 className="font-display text-2xl font-bold text-navy">{group.name}</h2>
               <span className="text-xs uppercase tracking-widest text-muted-foreground">{group.products.length} items</span>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {group.products.map((p) => (
+              {group.products.map((p: Product) => (
                 <Link
                   key={p.slug}
                   to="/products/$category/$product"
