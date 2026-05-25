@@ -19,6 +19,7 @@ import { Route as DentalChairsRouteImport } from './routes/dental-chairs'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsCategoryRouteImport } from './routes/products.$category'
+import { Route as ProductsCategoryProductRouteImport } from './routes/products.$category.$product'
 
 const TurnkeyRoute = TurnkeyRouteImport.update({
   id: '/turnkey',
@@ -70,6 +71,11 @@ const ProductsCategoryRoute = ProductsCategoryRouteImport.update({
   path: '/$category',
   getParentRoute: () => ProductsRoute,
 } as any)
+const ProductsCategoryProductRoute = ProductsCategoryProductRouteImport.update({
+  id: '/$product',
+  path: '/$product',
+  getParentRoute: () => ProductsCategoryRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,7 +87,8 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
-  '/products/$category': typeof ProductsCategoryRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,7 +100,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
-  '/products/$category': typeof ProductsCategoryRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,7 +114,8 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
-  '/products/$category': typeof ProductsCategoryRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/sterilisation'
     | '/turnkey'
     | '/products/$category'
+    | '/products/$category/$product'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/sterilisation'
     | '/turnkey'
     | '/products/$category'
+    | '/products/$category/$product'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/sterilisation'
     | '/turnkey'
     | '/products/$category'
+    | '/products/$category/$product'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,15 +243,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsCategoryRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/products/$category/$product': {
+      id: '/products/$category/$product'
+      path: '/$product'
+      fullPath: '/products/$category/$product'
+      preLoaderRoute: typeof ProductsCategoryProductRouteImport
+      parentRoute: typeof ProductsCategoryRoute
+    }
   }
 }
 
+interface ProductsCategoryRouteChildren {
+  ProductsCategoryProductRoute: typeof ProductsCategoryProductRoute
+}
+
+const ProductsCategoryRouteChildren: ProductsCategoryRouteChildren = {
+  ProductsCategoryProductRoute: ProductsCategoryProductRoute,
+}
+
+const ProductsCategoryRouteWithChildren =
+  ProductsCategoryRoute._addFileChildren(ProductsCategoryRouteChildren)
+
 interface ProductsRouteChildren {
-  ProductsCategoryRoute: typeof ProductsCategoryRoute
+  ProductsCategoryRoute: typeof ProductsCategoryRouteWithChildren
 }
 
 const ProductsRouteChildren: ProductsRouteChildren = {
-  ProductsCategoryRoute: ProductsCategoryRoute,
+  ProductsCategoryRoute: ProductsCategoryRouteWithChildren,
 }
 
 const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
@@ -260,3 +290,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
