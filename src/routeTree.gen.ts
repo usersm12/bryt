@@ -12,11 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TurnkeyRouteImport } from './routes/turnkey'
 import { Route as SterilisationRouteImport } from './routes/sterilisation'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ImplantsRouteImport } from './routes/implants'
 import { Route as HandpiecesRouteImport } from './routes/handpieces'
 import { Route as DentalChairsRouteImport } from './routes/dental-chairs'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BrandsRouteImport } from './routes/brands'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductsCategoryRouteImport } from './routes/products.$category'
+import { Route as ProductsCategoryProductRouteImport } from './routes/products.$category.$product'
 
 const TurnkeyRoute = TurnkeyRouteImport.update({
   id: '/turnkey',
@@ -31,6 +35,11 @@ const SterilisationRoute = SterilisationRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImplantsRoute = ImplantsRouteImport.update({
@@ -53,82 +62,123 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandsRoute = BrandsRouteImport.update({
+  id: '/brands',
+  path: '/brands',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsCategoryRoute = ProductsCategoryRouteImport.update({
+  id: '/$category',
+  path: '/$category',
+  getParentRoute: () => ProductsRoute,
+} as any)
+const ProductsCategoryProductRoute = ProductsCategoryProductRouteImport.update({
+  id: '/$product',
+  path: '/$product',
+  getParentRoute: () => ProductsCategoryRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/brands': typeof BrandsRoute
   '/contact': typeof ContactRoute
   '/dental-chairs': typeof DentalChairsRoute
   '/handpieces': typeof HandpiecesRoute
   '/implants': typeof ImplantsRoute
+  '/products': typeof ProductsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/brands': typeof BrandsRoute
   '/contact': typeof ContactRoute
   '/dental-chairs': typeof DentalChairsRoute
   '/handpieces': typeof HandpiecesRoute
   '/implants': typeof ImplantsRoute
+  '/products': typeof ProductsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/brands': typeof BrandsRoute
   '/contact': typeof ContactRoute
   '/dental-chairs': typeof DentalChairsRoute
   '/handpieces': typeof HandpiecesRoute
   '/implants': typeof ImplantsRoute
+  '/products': typeof ProductsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/brands'
     | '/contact'
     | '/dental-chairs'
     | '/handpieces'
     | '/implants'
+    | '/products'
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/products/$category'
+    | '/products/$category/$product'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/brands'
     | '/contact'
     | '/dental-chairs'
     | '/handpieces'
     | '/implants'
+    | '/products'
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/products/$category'
+    | '/products/$category/$product'
   id:
     | '__root__'
     | '/'
+    | '/brands'
     | '/contact'
     | '/dental-chairs'
     | '/handpieces'
     | '/implants'
+    | '/products'
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/products/$category'
+    | '/products/$category/$product'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BrandsRoute: typeof BrandsRoute
   ContactRoute: typeof ContactRoute
   DentalChairsRoute: typeof DentalChairsRoute
   HandpiecesRoute: typeof HandpiecesRoute
   ImplantsRoute: typeof ImplantsRoute
+  ProductsRoute: typeof ProductsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SterilisationRoute: typeof SterilisationRoute
   TurnkeyRoute: typeof TurnkeyRoute
@@ -155,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/implants': {
@@ -185,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brands': {
+      id: '/brands'
+      path: '/brands'
+      fullPath: '/brands'
+      preLoaderRoute: typeof BrandsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,15 +256,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/$category': {
+      id: '/products/$category'
+      path: '/$category'
+      fullPath: '/products/$category'
+      preLoaderRoute: typeof ProductsCategoryRouteImport
+      parentRoute: typeof ProductsRoute
+    }
+    '/products/$category/$product': {
+      id: '/products/$category/$product'
+      path: '/$product'
+      fullPath: '/products/$category/$product'
+      preLoaderRoute: typeof ProductsCategoryProductRouteImport
+      parentRoute: typeof ProductsCategoryRoute
+    }
   }
 }
 
+interface ProductsCategoryRouteChildren {
+  ProductsCategoryProductRoute: typeof ProductsCategoryProductRoute
+}
+
+const ProductsCategoryRouteChildren: ProductsCategoryRouteChildren = {
+  ProductsCategoryProductRoute: ProductsCategoryProductRoute,
+}
+
+const ProductsCategoryRouteWithChildren =
+  ProductsCategoryRoute._addFileChildren(ProductsCategoryRouteChildren)
+
+interface ProductsRouteChildren {
+  ProductsCategoryRoute: typeof ProductsCategoryRouteWithChildren
+}
+
+const ProductsRouteChildren: ProductsRouteChildren = {
+  ProductsCategoryRoute: ProductsCategoryRouteWithChildren,
+}
+
+const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
+  ProductsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BrandsRoute: BrandsRoute,
   ContactRoute: ContactRoute,
   DentalChairsRoute: DentalChairsRoute,
   HandpiecesRoute: HandpiecesRoute,
   ImplantsRoute: ImplantsRoute,
+  ProductsRoute: ProductsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SterilisationRoute: SterilisationRoute,
   TurnkeyRoute: TurnkeyRoute,
