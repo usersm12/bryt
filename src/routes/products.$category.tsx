@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
-import { getCategory } from "@/lib/products";
+import { getCategory, type Category } from "@/lib/products";
 import { ChevronRight, Package } from "lucide-react";
 
 export const Route = createFileRoute("/products/$category")({
-  loader: ({ params }) => {
+  loader: ({ params }): { category: Category } => {
     const category = getCategory(params.category);
     if (!category) throw notFound();
     return { category };
