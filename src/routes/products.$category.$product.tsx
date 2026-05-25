@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getProduct, getCategory, type Category, type Product } from "@/lib/products";
+import { getProduct, getCategory, type Category, type Product, type ProductGroup } from "@/lib/products";
 import { ChevronRight, Check, Package, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/products/$category/$product")({
@@ -37,8 +37,8 @@ export const Route = createFileRoute("/products/$category/$product")({
 function ProductPage() {
   const { category, product } = Route.useLoaderData();
   const related = category.groups
-    .find((g) => g.name === product.group)
-    ?.products.filter((p) => p.slug !== product.slug)
+    .find((g: ProductGroup) => g.name === product.group)
+    ?.products.filter((p: Product) => p.slug !== product.slug)
     .slice(0, 4) ?? [];
 
   return (
@@ -90,7 +90,7 @@ function ProductPage() {
         <section className="mx-auto max-w-7xl px-6 pb-20">
           <h2 className="mb-5 font-display text-xl font-bold text-navy">More from {product.group}</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p) => (
+            {related.map((p: Product) => (
               <Link
                 key={p.slug}
                 to="/products/$category/$product"
