@@ -242,6 +242,68 @@ export type ProductSection = { heading: string; body?: string; bullets?: string[
 export type ProductDetails = { tagline: string; intro: string; sections: ProductSection[] };
 
 export const productDetails: Record<string, ProductDetails> = {
+  "lifedent-e9-c": {
+    tagline: "Premium Continental Dental Technology",
+    intro:
+      "The E9-c Continental Dental Unit combines elegant European-inspired design with intelligent clinical functionality, delivering a sophisticated treatment experience for modern dental practices.",
+    sections: [
+      {
+        heading: "Intelligent Treatment Management",
+        body: "Its advanced touchscreen system improves workflow efficiency and simplifies clinical operation.",
+        bullets: [
+          "7-inch smart touchscreen panel",
+          "15 programmable chair positions",
+          "Dynamic instrument interlock system",
+          "Integrated treatment management",
+          "User-friendly digital controls",
+        ],
+      },
+      {
+        heading: "Superior Patient Comfort Engineering",
+        body: "The E9-c is built to provide smooth positioning and ergonomic support during every procedure.",
+        bullets: [
+          "Synchronized chair movement",
+          "Ergonomic dual-jointed headrest",
+          "Wide patient support cushioning",
+          "Smooth silent operation",
+          "Stable treatment positioning",
+        ],
+      },
+      {
+        heading: "Advanced Hygiene Protection",
+        body: "Integrated hygiene technologies help clinics maintain high standards of cleanliness and infection control.",
+        bullets: [
+          "Built-in tubing disinfection system",
+          "Easy-clean detachable components",
+          "Hygienic integrated waterline system",
+          "Simplified maintenance procedures",
+          "Efficient clinic sanitation support",
+        ],
+      },
+      {
+        heading: "Professional Illumination Performance",
+        body: "The V5 LED operating light enhances visibility for precise and comfortable treatment procedures.",
+        bullets: [
+          "Bright shadow-free illumination",
+          "Adjustable light intensity",
+          "Natural daylight lighting effect",
+          "Wide treatment coverage",
+          "Reduced eye fatigue support",
+        ],
+      },
+      {
+        heading: "Designed for High-End Clinics",
+        body: "The E9-c is ideal for premium dental practices seeking modern aesthetics, intelligent technology, and reliable long-term performance.",
+        bullets: [
+          "Elegant continental-style appearance",
+          "Durable premium construction",
+          "Supports advanced dental procedures",
+          "Efficient integrated workflow",
+          "Professional clinic enhancement",
+        ],
+      },
+    ],
+  },
   "lifedent-e9-i": {
     tagline: "Intelligent Clinical Control",
     intro:
