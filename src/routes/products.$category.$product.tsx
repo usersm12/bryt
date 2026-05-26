@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getProduct, getCategory, type Category, type Product, type ProductGroup } from "@/lib/products";
+import { getProduct, getCategory, getProductDetails, type Category, type Product, type ProductGroup } from "@/lib/products";
 import { ChevronRight, Check, Package, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/products/$category/$product")({
@@ -36,6 +36,7 @@ export const Route = createFileRoute("/products/$category/$product")({
 
 function ProductPage() {
   const { category, product } = Route.useLoaderData();
+  const details = getProductDetails(product.slug);
   const related = category.groups
     .find((g: ProductGroup) => g.name === product.group)
     ?.products.filter((p: Product) => p.slug !== product.slug)
@@ -60,7 +61,14 @@ function ProductPage() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">{product.brand} · {category.name}</p>
           <h1 className="mt-2 font-display text-3xl font-bold text-navy md:text-4xl">{product.name}</h1>
-          <p className="mt-4 text-base text-foreground/75">{product.description}</p>
+          {details ? (
+            <>
+              <p className="mt-2 font-display text-lg font-semibold text-primary">{details.tagline}</p>
+              <p className="mt-4 text-base text-foreground/75">{details.intro}</p>
+            </>
+          ) : (
+            <p className="mt-4 text-base text-foreground/75">{product.description}</p>
+          )}
 
           <ul className="mt-6 space-y-2 text-sm">
             {[
@@ -85,6 +93,29 @@ function ProductPage() {
           </div>
         </div>
       </section>
+
+      {details && (
+        <section className="mx-auto max-w-7xl px-6 pb-16">
+          <h2 className="mb-6 font-display text-2xl font-bold text-navy">Everything About the Product</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            {details.sections.map((s) => (
+              <div key={s.heading} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+                <h3 className="font-display text-lg font-bold text-navy">{s.heading}</h3>
+                {s.body && <p className="mt-2 text-sm text-foreground/75">{s.body}</p>}
+                {s.bullets && (
+                  <ul className="mt-4 space-y-2 text-sm">
+                    {s.bullets.map((b) => (
+                      <li key={b} className="flex items-start gap-2 text-foreground/80">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section className="mx-auto max-w-7xl px-6 pb-20">

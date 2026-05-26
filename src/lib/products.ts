@@ -237,3 +237,414 @@ export const brands = [
 export const getCategory = (slug: string) => categories.find((c) => c.slug === slug);
 export const getProduct = (categorySlug: string, productSlug: string) =>
   allProducts.find((p) => p.category === categorySlug && p.slug === productSlug);
+
+export type ProductSection = { heading: string; body?: string; bullets?: string[] };
+export type ProductDetails = { tagline: string; intro: string; sections: ProductSection[] };
+
+export const productDetails: Record<string, ProductDetails> = {
+  "lifedent-e9-i": {
+    tagline: "Intelligent Clinical Control",
+    intro:
+      "The E9-i International Dental Unit is engineered for advanced dental environments that require intelligent workflow management, precision operation, and elevated patient comfort. Equipped with a modern touchscreen control interface, the system allows dentists to manage chair positions, lighting, hygiene functions, and treatment settings effortlessly.",
+    sections: [
+      {
+        heading: "Advanced Smart Features",
+        bullets: [
+          "7-inch intelligent touchscreen interface",
+          "15 programmable chair memory positions",
+          "Dynamic instrument interlock system",
+          "Integrated digital workflow controls",
+          "User-friendly operational interface",
+        ],
+      },
+      {
+        heading: "Exceptional Patient Comfort",
+        body: "Designed to improve the patient experience during long procedures, the E9-i features synchronized chair movement and ergonomic cushioning that reduce discomfort while ensuring smooth positioning.",
+        bullets: [
+          "Dual-jointed ergonomic headrest",
+          "Ultra-smooth synchronized chair movement",
+          "Wide patient support cushioning",
+          "Silent chair operation system",
+          "Stable positioning technology",
+        ],
+      },
+      {
+        heading: "Professional Hygiene Management",
+        body: "The E9-i incorporates advanced hygiene technologies that support modern infection-control standards and simplify clinic maintenance.",
+        bullets: [
+          "Built-in tubing disinfection system",
+          "300 rewritable disinfection records",
+          "Easy-clean detachable ceramic spittoon",
+          "Hygienic integrated waterline system",
+          "Simplified maintenance access",
+        ],
+      },
+      {
+        heading: "High-Performance Clinical Lighting",
+        body: "The integrated V5 LED operating light delivers bright, shadow-free illumination for improved treatment precision and visibility.",
+        bullets: [
+          "Natural daylight-style illumination",
+          "Adjustable brightness settings",
+          "Reduced operator eye fatigue",
+          "Wide-angle lighting coverage",
+          "Energy-efficient LED performance",
+        ],
+      },
+      {
+        heading: "Designed for Modern Dental Clinics",
+        body: "The E9-i combines elegant aesthetics with durable construction, making it suitable for premium clinics focused on performance, technology, and patient satisfaction.",
+        bullets: [
+          "Modern international-style appearance",
+          "Durable long-term construction",
+          "Space-efficient integrated design",
+          "Supports multi-procedure treatments",
+          "Ideal for high-volume practices",
+        ],
+      },
+    ],
+  },
+  "lifedent-e9-t": {
+    tagline: "Flexible Cart-Based Treatment System",
+    intro:
+      "The E9-t Cart-Version Dental Unit is designed for clinics that require greater flexibility and mobility during treatment procedures. Its adjustable cart configuration allows doctors to customize positioning for improved workflow efficiency and convenience.",
+    sections: [
+      {
+        heading: "Smart Clinical Technology",
+        body: "The integrated touchscreen system simplifies treatment management and enhances operational accuracy throughout procedures.",
+        bullets: [
+          "7-inch intelligent touchscreen panel",
+          "15 programmable chair positions",
+          "Dynamic instrument interlock technology",
+          "Digital treatment management system",
+          "Simplified workflow controls",
+        ],
+      },
+      {
+        heading: "Adjustable Mobility & Ergonomics",
+        body: "The movable cart structure enables better accessibility and smoother operation in multi-doctor or compact clinical environments.",
+        bullets: [
+          "Adjustable cart height (75–90 cm)",
+          "Flexible treatment positioning",
+          "Ergonomic doctor accessibility",
+          "Space-saving operational design",
+          "Comfortable treatment workflow",
+        ],
+      },
+      {
+        heading: "Enhanced Patient Experience",
+        body: "The E9-t is designed to improve patient comfort through stable positioning and ergonomic support systems.",
+        bullets: [
+          "Synchronized chair movement",
+          "Ergonomic dual-jointed headrest",
+          "Wide patient support design",
+          "Smooth and silent operation",
+          "Relaxed treatment positioning",
+        ],
+      },
+      {
+        heading: "Advanced Hygiene & Maintenance",
+        body: "Built-in hygiene systems support infection control while simplifying daily clinic cleaning procedures.",
+        bullets: [
+          "Integrated tubing disinfection system",
+          "Easy-clean treatment surfaces",
+          "Detachable hygienic components",
+          "Durable stainless steel assistant tray",
+          "Efficient maintenance accessibility",
+        ],
+      },
+      {
+        heading: "Premium Clinical Performance",
+        body: "The E9-t combines mobility, technology, and sophisticated aesthetics to support modern dental clinics seeking flexibility without compromising functionality.",
+        bullets: [
+          "High-performance V5 LED light",
+          "Durable premium construction",
+          "Modern contemporary appearance",
+          "Ideal for advanced treatments",
+          "Suitable for growing practices",
+        ],
+      },
+    ],
+  },
+  "lifedent-p3-c": {
+    tagline: "Reliable Everyday Clinical Performance",
+    intro:
+      "The P3-c Continental Dental Unit is built for daily dental procedures, offering dependable functionality, ergonomic comfort, and efficient treatment workflows. Its durable design ensures consistent performance in busy dental environments.",
+    sections: [
+      {
+        heading: "Comfortable Ergonomic Design",
+        body: "The unit prioritizes patient relaxation and operator convenience through carefully engineered ergonomic support systems.",
+        bullets: [
+          "Ultra-low 380 mm chair position",
+          "Wide ergonomic patient cushion",
+          "Soft-start chair movement system",
+          "Comfortable positioning support",
+          "Stable treatment experience",
+        ],
+      },
+      {
+        heading: "Precision Chair Technology",
+        body: "Advanced positioning technology improves treatment efficiency while enabling smooth and accurate chair adjustments.",
+        bullets: [
+          "Angle sensor positioning system",
+          "Programmable chair memory settings",
+          "Smooth synchronized movement",
+          "Quiet operational performance",
+          "Stable chair positioning accuracy",
+        ],
+      },
+      {
+        heading: "Professional Treatment Illumination",
+        body: "The integrated V3 LED operating light provides clear visibility during procedures for improved clinical precision.",
+        bullets: [
+          "Bright shadow-free illumination",
+          "Adjustable lighting intensity",
+          "Energy-efficient LED technology",
+          "Reduced eye strain support",
+          "Wide-area treatment visibility",
+        ],
+      },
+      {
+        heading: "Durable Hygienic Construction",
+        body: "The P3-c is manufactured using durable materials designed for long-term clinical reliability and easy maintenance.",
+        bullets: [
+          "Aluminum casting backrest",
+          "Detachable ceramic spittoon",
+          "Easy-clean treatment surfaces",
+          "Hygienic integrated components",
+          "Long-lasting structural durability",
+        ],
+      },
+      {
+        heading: "Ideal for Modern Dental Clinics",
+        body: "The P3-c delivers a balanced combination of affordability, reliability, and patient comfort for general dentistry applications.",
+        bullets: [
+          "Suitable for daily procedures",
+          "Compact clinical integration",
+          "Efficient operational workflow",
+          "Professional modern appearance",
+          "Reliable long-term investment",
+        ],
+      },
+    ],
+  },
+  "lifedent-p3-i": {
+    tagline: "Affordable Professional Dental Solution",
+    intro:
+      "The P3-i International Dental Unit is designed for clinics seeking dependable performance, ergonomic comfort, and professional functionality at an accessible investment level.",
+    sections: [
+      {
+        heading: "Enhanced Patient Comfort System",
+        body: "Every component of the P3-i is engineered to improve treatment comfort and create a more relaxed patient experience.",
+        bullets: [
+          "Ultra-low 380 mm chair position",
+          "Wide ergonomic patient support",
+          "Soft-start movement technology",
+          "Stable synchronized positioning",
+          "Comfortable headrest adjustment",
+        ],
+      },
+      {
+        heading: "Intelligent Positioning Technology",
+        body: "The integrated angle sensor system enhances operational accuracy and simplifies treatment positioning.",
+        bullets: [
+          "Precision angle sensor controls",
+          "Smooth chair memory function",
+          "Stable treatment adjustments",
+          "Quiet operational performance",
+          "Easy positioning management",
+        ],
+      },
+      {
+        heading: "Efficient Clinical Lighting",
+        body: "The V3 LED operating light improves treatment visibility and clinical accuracy.",
+        bullets: [
+          "Natural daylight illumination",
+          "Wide-angle lighting coverage",
+          "Reduced shadow formation",
+          "Adjustable brightness control",
+          "Energy-efficient operation",
+        ],
+      },
+      {
+        heading: "Practical Hygiene & Maintenance",
+        body: "Designed for everyday dental use, the P3-i simplifies cleaning and maintenance procedures.",
+        bullets: [
+          "Detachable ceramic spittoon",
+          "Easy-clean treatment surfaces",
+          "Durable integrated components",
+          "Hygienic workflow support",
+          "Reliable maintenance accessibility",
+        ],
+      },
+      {
+        heading: "Built for Modern Practices",
+        body: "The P3-i offers a clean international-style appearance combined with dependable clinical performance for modern dental environments.",
+        bullets: [
+          "Contemporary clinic aesthetics",
+          "Durable construction quality",
+          "Efficient workflow integration",
+          "Suitable for multiple procedures",
+          "Excellent value-for-money solution",
+        ],
+      },
+    ],
+  },
+  "lifedent-p3-t": {
+    tagline: "Intelligent Clinical Workflow",
+    intro:
+      "The Lifedent P3-t Dental Unit is designed to simplify modern dental procedures through intelligent controls, ergonomic workflow optimization, and flexible clinical functionality. Its smart operating system enhances treatment efficiency while supporting comfortable day-to-day operation for dental professionals.",
+    sections: [
+      {
+        heading: "Smart Operating System",
+        bullets: [
+          "Intelligent linkage control system",
+          "One-touch operation management",
+          "3 personalized doctor programs",
+          "15 programmable memory positions",
+          "Integrated doctor & assistant controls",
+        ],
+      },
+      {
+        heading: "Flexible Cart-Version Design",
+        body: "The P3-t features a cart-style delivery system that provides greater flexibility, accessibility, and adaptability for different treatment procedures and clinic layouts.",
+        bullets: [
+          "Adjustable cart height system",
+          "Smooth mobile instrument positioning",
+          "Space-saving ergonomic structure",
+          "Silent high-quality caster wheels",
+          "Flexible treatment accessibility",
+        ],
+      },
+      {
+        heading: "Superior Patient Comfort System",
+        body: "Every component of the P3-t is engineered to improve patient relaxation and ensure a smoother treatment experience during long dental procedures.",
+        bullets: [
+          "Ultra-low 380 mm chair position",
+          "Soft-start movement technology",
+          "Ultra-thin ergonomic backrest",
+          "Stable synchronized chair movement",
+          "Comfortable long-duration support",
+        ],
+      },
+      {
+        heading: "Intelligent Positioning Technology",
+        body: "The integrated positioning system enhances operational precision while allowing smoother and more efficient chair adjustments throughout treatments.",
+        bullets: [
+          "Precision memory position controls",
+          "Smooth chair adjustment system",
+          "Stable treatment positioning",
+          "Quiet operational performance",
+          "Easy positioning management",
+        ],
+      },
+      {
+        heading: "Efficient Clinical Lighting",
+        body: "The V2 LED operating light delivers bright and accurate illumination for enhanced visibility and improved treatment precision.",
+        bullets: [
+          "Natural daylight illumination",
+          "Wide-angle lighting coverage",
+          "Reduced shadow formation",
+          "Contactless brightness adjustment",
+          "Energy-efficient LED operation",
+        ],
+      },
+      {
+        heading: "Advanced Hygiene & Maintenance",
+        body: "Designed for modern clinical environments, the P3-t supports efficient cleaning, infection control, and simplified maintenance procedures.",
+        bullets: [
+          "Optional tubing disinfection system",
+          "Detachable ceramic spittoon",
+          "Easy-clean treatment surfaces",
+          "Removable suction components",
+          "Hygienic workflow support",
+        ],
+      },
+      {
+        heading: "Humanized Functional Design",
+        body: "The P3-t combines intelligent engineering with practical daily usability to improve workflow convenience for dentists and assistants.",
+        bullets: [
+          "Multifunctional foot control system",
+          "Independent 2-liter water bottle",
+          "Optional dynamic water heating",
+          "Easy-access assistant tray system",
+          "Integrated drainage functionality",
+        ],
+      },
+      {
+        heading: "Built for Modern Dental Clinics",
+        body: "The P3-t combines modern aesthetics, ergonomic flexibility, and reliable performance to meet the demands of contemporary dental practices.",
+        bullets: [
+          "Contemporary clinic aesthetics",
+          "Durable construction quality",
+          "Flexible workflow integration",
+          "Suitable for multiple procedures",
+          "Professional high-performance design",
+        ],
+      },
+    ],
+  },
+  "lifedent-p3-t-lite": {
+    tagline: "Compact & Efficient Dental Solution",
+    intro:
+      "The P3-t Lite Dental Unit is designed for clinics that require a streamlined, space-saving treatment system without sacrificing professional functionality or patient comfort.",
+    sections: [
+      {
+        heading: "Modern Minimalist Design",
+        body: "Its sleek and contemporary appearance helps clinics maintain a clean, professional, and modern treatment environment.",
+        bullets: [
+          "Compact integrated structure",
+          "Elegant modern aesthetics",
+          "Space-efficient configuration",
+          "Professional treatment appearance",
+          "Simplified operational layout",
+        ],
+      },
+      {
+        heading: "Everyday Clinical Convenience",
+        body: "The P3-t Lite supports efficient day-to-day dental procedures with practical functionality and ergonomic workflow optimization.",
+        bullets: [
+          "Easy-access instrument positioning",
+          "Comfortable treatment workflow",
+          "Smooth operational controls",
+          "Simplified treatment management",
+          "Reliable daily performance",
+        ],
+      },
+      {
+        heading: "Comfortable Patient Experience",
+        body: "The unit is engineered to support patient comfort during general dental treatments.",
+        bullets: [
+          "Ergonomic patient positioning",
+          "Stable chair movement system",
+          "Comfortable support structure",
+          "Relaxed treatment environment",
+          "Smooth operational performance",
+        ],
+      },
+      {
+        heading: "Easy Hygiene & Maintenance",
+        body: "Designed for practical clinical use, the P3-t Lite simplifies cleaning procedures and supports hygienic operation.",
+        bullets: [
+          "Easy-clean treatment surfaces",
+          "Durable maintenance-friendly materials",
+          "Simplified cleaning accessibility",
+          "Hygienic integrated components",
+          "Reliable long-term usability",
+        ],
+      },
+      {
+        heading: "Ideal for Growing Clinics",
+        body: "The P3-t Lite is an excellent choice for clinics seeking a compact, reliable, and cost-effective dental treatment unit.",
+        bullets: [
+          "Ideal for compact spaces",
+          "Efficient workflow optimization",
+          "Professional everyday functionality",
+          "Durable long-term performance",
+          "Excellent operational value",
+        ],
+      },
+    ],
+  },
+};
+
+export const getProductDetails = (slug: string) => productDetails[slug];
