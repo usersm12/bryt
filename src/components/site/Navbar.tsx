@@ -66,11 +66,13 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div onMouseEnter={() => setMega("turnkey")} className="relative">
-            <Link to="/turnkey" className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium uppercase tracking-wide text-foreground/80 hover:bg-secondary hover:text-primary">
-              Turnkey Clinic Setup <ChevronDown className="h-3 w-3" />
-            </Link>
-          </div>
+          <Link
+            to="/turnkey"
+            className="rounded-md px-3 py-2 text-sm font-medium uppercase tracking-wide text-foreground/80 hover:bg-secondary hover:text-primary"
+            onMouseEnter={closeMega}
+          >
+            Turnkey Clinic Setup
+          </Link>
 
           <Link
             to="/contact"
@@ -109,20 +111,6 @@ export function Navbar() {
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
-              {mega === "turnkey" && (
-                <div>
-                  <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-widest text-primary">Turnkey clinic setup — process</h3>
-                  <ol className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm text-foreground/80 md:grid-cols-2 lg:grid-cols-3">
-                    {turnkeySteps.map((s, i) => (
-                      <li key={s} className="flex gap-2">
-                        <span className="text-xs font-bold text-primary">{String(i + 1).padStart(2, "0")}</span>
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  <Link to="/turnkey" onClick={closeMega} className="mt-5 inline-block text-sm font-semibold text-primary">View full process →</Link>
                 </div>
               )}
             </div>
