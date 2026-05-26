@@ -3,23 +3,6 @@ import { useState } from "react";
 import { Menu, X, Phone, ChevronDown } from "lucide-react";
 import { categories, brands } from "@/lib/products";
 
-const turnkeySteps = [
-  "Meeting with client",
-  "Understand space, need & budget",
-  "Estimate cost, time frame & approval",
-  "Planning & layout — 3 options",
-  "Layout approval from client",
-  "Start execution of layout",
-  "Frequent updates to client",
-  "Client involved in colour & material selection",
-  "Commissioning of dental units & products",
-  "Client inspection visit for interior",
-  "Interior and decoration review",
-  "Final testing of installed devices",
-  "Demonstration to client",
-  "Handover of ready dental office",
-];
-
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState<string | null>(null);
