@@ -12,4 +12,13 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        // These Cloudflare/Vinxi modules are Worker-runtime-only — exclude them
+        // from the client bundle so Rollup doesn't try to resolve them.
+        external: ["cloudflare:workers", "vinxi/http"],
+      },
+    },
+  },
 });
