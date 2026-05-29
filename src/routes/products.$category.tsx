@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, Outlet, useMatches } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { getCategory, type Category, type ProductGroup, type Product } from "@/lib/products";
 import { ChevronRight, Package } from "lucide-react";
@@ -34,6 +34,11 @@ export const Route = createFileRoute("/products/$category")({
 
 function CategoryPage() {
   const { category } = Route.useLoaderData();
+  const matches = useMatches();
+  const isProductPage = matches[matches.length - 1]?.routeId === "/products/$category/$product";
+
+  if (isProductPage) return <Outlet />;
+
   return (
     <>
       <PageHero eyebrow="Category" title={category.name} subtitle={category.description} />
