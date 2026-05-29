@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "BRYT Dental Technologies — Equip Your Clinic Right From Day One" },
-      { name: "description", content: "Trusted by 500+ clinics across India. Dental chairs, handpieces, sterilisation, implants, and complete turnkey clinic setup with USA precision components." },
+      { name: "description", content: "Trusted by 500+ clinics across India. Dental chairs, handpieces, sterilisation, implants, and complete turnkey clinic setup with UK precision components." },
     ],
   }),
   component: HomePage,
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/")({
 
 const services = [
   { to: "/dental-chairs", icon: Building2, title: "Dental Chairs & Units", desc: "Lifedent E9 series treatment units built for comfort, efficiency, and years of trouble-free clinical use.", img: chairImg },
-  { to: "/handpieces", icon: Stethoscope, title: "Handpieces & Instruments", desc: "Four configurations, USA-sourced precision components. Your primary instrument cannot be a point of failure.", img: handpieceImg },
+  { to: "/handpieces", icon: Stethoscope, title: "Handpieces & Instruments", desc: "Four configurations, UK-sourced precision components. Your primary instrument cannot be a point of failure.", img: handpieceImg },
   { to: "/sterilisation", icon: ShieldPlus, title: "Sterilisation & Infection Control", desc: "Autoclaves, UV chambers, and oil-free compressors. Non-negotiable systems planned right from day one.", img: sterilImg },
   { to: "/implants", icon: Syringe, title: "EM-3 Implant System", desc: "Compact, precise torque control. The system that lets you deliver implantology with confidence.", img: implantImg },
   { to: "/turnkey", icon: Layers, title: "Turnkey Clinic Setup", desc: "Planning, sourcing, installation, commissioning, and after-sales. One team. One process. Zero chaos.", img: turnkeyImg },
@@ -31,7 +31,7 @@ const trustStats = [
   { icon: Users, n: "500+", l: "Clinics Equipped" },
   { icon: Globe2, n: "15+", l: "Cities Across India" },
   { icon: Clock, n: "12+ Yrs", l: "Industry Experience" },
-  { icon: Award, n: "USA", l: "Precision Components" },
+  { icon: Award, n: "UK", l: "Precision Components" },
 ];
 
 function HomePage() {
@@ -133,7 +133,7 @@ function HomePage() {
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {[
             { icon: Compass, t: "Honest, Unbiased Guidance", body: "We recommend based on your workflow, space, and patient volume — not what carries the highest margin." },
-            { icon: ShieldPlus, t: "Technology Chosen for Durability", body: "Lifedent E9 units, USA-component handpieces, EM-3 implants — selected because they last, not because they sell." },
+            { icon: ShieldPlus, t: "Technology Chosen for Durability", body: "Lifedent E9 units, UK-component handpieces, EM-3 implants — selected because they last, not because they sell." },
             { icon: LifeBuoy, t: "Support Beyond Delivery", body: "Installation, commissioning, staff training, and ongoing after-sales — handled by the same team that planned it." },
           ].map((c) => (
             <div key={c.t} className="rounded-2xl border border-border bg-card p-7 shadow-card transition-colors hover:border-primary/40">
@@ -202,7 +202,7 @@ function HomePage() {
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {[
             { img: chairImg, t: "Lifedent E9 Series Units", d: "7-inch touchscreen, V5 LED surgical lighting (8,000–35,000 LUX), multi-function tubing disinfection. Available in E9-c (hanging), E9-i (whip-arm) and E9-t (cart)." },
-            { img: handpieceImg, t: "Handpiece Series", d: "Triple spray, single spray latch, external spray contra, and straight — built with USA-sourced precision components." },
+            { img: handpieceImg, t: "Handpiece Series", d: "Triple spray, single spray latch, external spray contra, and straight — built with UK-sourced precision components." },
             { img: sterilImg, t: "Sterilisation Systems", d: "Autoclave, UV chamber and oil-free compressor planned as a workflow — not bolted on at the end." },
             { img: implantImg, t: "EM-3 Implant Machine", d: "Compact footprint, precise torque control — implantology ready from day one." },
           ].map((c) => (
