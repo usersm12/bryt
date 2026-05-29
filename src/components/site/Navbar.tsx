@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, Phone, ChevronDown } from "lucide-react";
 import { categories, brands } from "@/lib/products";
+import brytLogo from "@/assets/bryt-logo.png";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -12,12 +13,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-sea text-primary-foreground font-display font-bold">B</div>
-          <div className="leading-tight">
-            <div className="font-display text-base font-bold text-navy">BRYT</div>
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dental Tech</div>
-          </div>
+        <Link to="/" className="flex items-center">
+          <img src={brytLogo} alt="BRYT Dental Technologies" className="h-10 w-auto" />
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex" onMouseLeave={closeMega}>
