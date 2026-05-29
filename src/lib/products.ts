@@ -92,7 +92,7 @@ export const categories: Category[] = [
   {
     slug: "handpieces",
     name: "Handpieces",
-    tagline: "USA-precision turbines and contra-angles",
+    tagline: "UK-precision turbines and contra-angles",
     description:
       "High-speed turbines, contra-angles and straight handpieces from BDC and Galaxy — quiet, balanced and built for long duty cycles.",
     groups: build("handpieces", [
@@ -238,8 +238,22 @@ export const getCategory = (slug: string) => categories.find((c) => c.slug === s
 export const getProduct = (categorySlug: string, productSlug: string) =>
   allProducts.find((p) => p.category === categorySlug && p.slug === productSlug);
 
-export type ProductSection = { heading: string; body?: string; bullets?: string[] };
-export type ProductDetails = { tagline: string; intro: string; sections: ProductSection[] };
+export type ProductSection = {
+  heading: string;
+  body?: string;
+  bullets?: string[];
+  specs?: { label: string; value: string }[];
+};
+
+export type ProductDetails = {
+  tagline: string;
+  intro: string;
+  overview?: { label: string; value: string }[];
+  techSpecs?: { label: string; value: string }[];
+  sections: ProductSection[];
+  applications?: { name: string; benefit: string }[];
+  advantages?: { feature: string; benefit: string }[];
+};
 
 export const productDetails: Record<string, ProductDetails> = {
   "lifedent-e9-c": {
@@ -705,6 +719,121 @@ export const productDetails: Record<string, ProductDetails> = {
           "Excellent operational value",
         ],
       },
+    ],
+  },
+  "bdc-rd-3m-b2-hs-pb-turbine": {
+    tagline: "High-Speed Precision. Smooth Cutting. Reliable Everyday Performance.",
+    intro:
+      "The BDC RD 3M B2 HS PB Turbine is a high-speed air turbine handpiece engineered for precision cutting, smooth rotation, and dependable clinical performance. Designed with a universal B2 2-hole connection, ceramic ball bearings, push-button chuck system, and triple water spray, this turbine delivers efficient cutting power with excellent operator control — built for routine restorative and prosthodontic procedures in a lightweight stainless steel body.",
+    overview: [
+      { label: "Model", value: "RD-3M-B2" },
+      { label: "Type", value: "High-Speed Air Turbine Handpiece" },
+      { label: "Connection Type", value: "B2 2-Hole Universal Coupling" },
+      { label: "Chuck System", value: "Push-Button" },
+      { label: "Bearing Type", value: "Ceramic Ball Bearings" },
+      { label: "Spray System", value: "Triple Internal Water Spray" },
+      { label: "Body Material", value: "Stainless Steel" },
+      { label: "Lighting", value: "LED Illumination" },
+      { label: "Application", value: "High-Speed Restorative & General Dentistry" },
+    ],
+    techSpecs: [
+      { label: "Connection Type", value: "B2 Series (2-Hole Universal)" },
+      { label: "Chuck Mechanism", value: "Push-Button Chuck" },
+      { label: "Bur Compatibility", value: "FG Burs Ø 1.6 mm" },
+      { label: "Bearing Type", value: "Ceramic Ball Bearings" },
+      { label: "Spray System", value: "3-Water Internal Spray" },
+      { label: "Speed Range", value: "350,000 – 450,000 RPM" },
+      { label: "Working Pressure", value: "0.22 – 0.30 MPa" },
+      { label: "Weight", value: "Approx. 63–69 g" },
+      { label: "Body Material", value: "Stainless Steel" },
+      { label: "Illumination", value: "LED Head Light" },
+      { label: "Sterilization", value: "Fully Autoclavable" },
+    ],
+    sections: [
+      {
+        heading: "High-Speed Cutting Performance",
+        body: "Designed for fast and efficient tooth preparation, the turbine operates at speeds up to 450,000 RPM for smooth and controlled cutting performance.",
+        bullets: [
+          "Faster cutting efficiency",
+          "Reduced chair time per procedure",
+          "Smooth enamel and dentin preparation",
+          "Consistent rotational stability at high load",
+        ],
+      },
+      {
+        heading: "Push-Button Chuck System",
+        body: "The push-button chuck mechanism allows quick and secure bur replacement without additional tools — simplifying instrument handling during busy sessions.",
+        bullets: [
+          "One-handed operation for faster bur changes",
+          "Secure bur locking for stable clinical performance",
+          "Tool-free replacement improves workflow efficiency",
+        ],
+      },
+      {
+        heading: "Ceramic Ball Bearings",
+        body: "Equipped with ceramic bearings engineered for smoother operation and an extended service life compared to standard steel bearings.",
+        bullets: [
+          "Reduced friction and lower heat generation",
+          "Smoother rotation under sustained load",
+          "Improved durability and longer operational lifespan",
+          "Quieter, more stable performance throughout procedures",
+        ],
+      },
+      {
+        heading: "Triple Internal Water Spray",
+        body: "The integrated 3-water spray system provides effective and uniform cooling throughout high-speed procedures.",
+        bullets: [
+          "Better cooling efficiency at the cutting site",
+          "Reduced thermal stress on tooth structure",
+          "Improved patient comfort during preparation",
+          "Clearer operative field for improved visibility",
+        ],
+      },
+      {
+        heading: "LED Illumination",
+        body: "Integrated LED lighting delivers direct illumination at the working area for improved accuracy, even in posterior regions.",
+        bullets: [
+          "Head-mounted LED for shadow-free visibility",
+          "Improved procedural accuracy",
+          "Enhanced detail recognition in difficult-access areas",
+        ],
+      },
+      {
+        heading: "Universal B2 Compatibility",
+        body: "The B2 2-hole connection offers broad compatibility with a wide range of dental unit brands and systems.",
+        bullets: [
+          "Compatible with KaVo, NSK, Sirona, and W&H",
+          "Works with standard 4-hole dental units",
+          "Easy integration without additional adapters or tools",
+        ],
+      },
+      {
+        heading: "Durable Stainless Steel Construction",
+        body: "Constructed from corrosion-resistant stainless steel for long-term reliability and repeated sterilization cycles.",
+        bullets: [
+          "Rust-resistant body with strong structural integrity",
+          "Fully autoclavable at standard sterilization cycles",
+          "Designed for dependable high-volume daily use",
+        ],
+      },
+    ],
+    applications: [
+      { name: "Tooth Preparation", benefit: "Crown & bridge preparation" },
+      { name: "Caries Removal", benefit: "Efficient cavity excavation" },
+      { name: "Enameloplasty", benefit: "Smooth enamel reshaping" },
+      { name: "Restorative Dentistry", benefit: "Precise restorative preparation" },
+      { name: "Prosthodontics", benefit: "Crown and bridge adjustments" },
+      { name: "General Dentistry", benefit: "Routine high-speed procedures" },
+    ],
+    advantages: [
+      { feature: "Push-Button Chuck", benefit: "Fast one-handed bur changes" },
+      { feature: "Ceramic Bearings", benefit: "Smoother rotation & longer service life" },
+      { feature: "350K–450K RPM", benefit: "Efficient, controlled cutting performance" },
+      { feature: "Triple Water Spray", benefit: "Better cooling & clearer operative field" },
+      { feature: "LED Illumination", benefit: "Enhanced precision in all areas" },
+      { feature: "B2 Universal Coupling", benefit: "Broad compatibility across systems" },
+      { feature: "Stainless Steel Body", benefit: "Durable & corrosion-resistant" },
+      { feature: "Fully Autoclavable", benefit: "Reliable sterilization support" },
     ],
   },
 };
