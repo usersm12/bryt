@@ -11,10 +11,5 @@
       "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
     }
   ],
-  "r2_buckets": [
-    {
-      "binding": "R2",
-      "bucket_name": "bryt-images"
-    }
-  ]
+  "r2_buckets": []
 }

@@ -374,20 +374,6 @@ export async function dbDeleteProduct(slug: string): Promise<void> {
   await db().prepare("DELETE FROM products WHERE slug = ?").bind(slug).run();
 }
 
-// ─── Admin: Image upload to R2 ────────────────────────────────────────────────
-
-export async function dbUploadImage(
-  filename: string,
-  data: ArrayBuffer,
-  contentType: string,
-): Promise<string> {
-  const r2 = (env as unknown as CloudflareEnv).R2;
-  const key = `products/${Date.now()}-${filename}`;
-  await r2.put(key, data, { httpMetadata: { contentType } });
-  // Return the R2 public URL — configure your R2 bucket's custom domain here
-  return `/api/images/${key}`;
-}
-
 // ─── Admin: Stats ─────────────────────────────────────────────────────────────
 
 export async function dbGetStats(): Promise<{

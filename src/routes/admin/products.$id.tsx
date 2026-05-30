@@ -7,12 +7,11 @@ import {
   dbUpdateProduct,
   dbListCategories,
   dbListGroups,
-  dbUploadImage,
   type DbProduct,
   type ProductInput,
   type DbCategory,
 } from "@/lib/db.server";
-import { ChevronLeft, Plus, Trash2, Upload } from "lucide-react";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 
 // ─── Server functions ─────────────────────────────────────────────────────────
 
@@ -49,13 +48,6 @@ const saveProduct = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const uploadImage = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as { filename: string; base64: string; contentType: string })
-  .handler(async ({ data }) => {
-    const bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
-    const url = await dbUploadImage(data.filename, bytes.buffer, data.contentType);
-    return { url };
-  });
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
@@ -365,7 +357,7 @@ function AdvantagesEditor({
   );
 }
 
-// ─── Image uploader ───────────────────────────────────────────────────────────
+// ─── Image uploader (URL-based) ───────────────────────────────────────────────
 
 function ImageUploader({
   imageUrl,
@@ -374,55 +366,23 @@ function ImageUploader({
   imageUrl: string;
   onUrlChange: (url: string) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
-
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const buffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-      const result = await uploadImage({
-        data: { filename: file.name, base64, contentType: file.type },
-      });
-      onUrlChange(result.url);
-    } catch {
-      alert("Upload failed. You can also paste an image URL directly.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
   return (
     <div className="space-y-3">
       {imageUrl && (
-        <div className="relative h-40 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+        <div className="h-40 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
           <img src={imageUrl} alt="Product" className="h-full w-full object-contain" />
         </div>
       )}
-
-      <div className="flex gap-3">
-        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-4 py-2.5 text-sm text-slate-600 hover:border-primary hover:text-primary">
-          <Upload className="h-4 w-4" />
-          {uploading ? "Uploading…" : "Upload image"}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={uploading}
-            className="hidden"
-          />
-        </label>
-      </div>
-
       <div>
-        <Label>Or paste image URL</Label>
+        <Label>Image URL</Label>
         <Input
           value={imageUrl}
           onChange={onUrlChange}
           placeholder="https://example.com/image.jpg"
         />
+        <p className="mt-1 text-xs text-slate-400">
+          Upload your image to Imgur, Cloudinary, or any host and paste the URL here.
+        </p>
       </div>
     </div>
   );
