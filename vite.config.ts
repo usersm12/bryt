@@ -13,16 +13,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    environments: {
-      // Apply externals ONLY to the browser/client build.
-      // The worker (SSR) build is NOT affected, so vinxi/http and cloudflare:workers
-      // get properly bundled into the Worker bundle and are available at runtime.
-      client: {
-        build: {
-          rollupOptions: {
-            external: ["cloudflare:workers", "vinxi/http"],
-          },
-        },
+    build: {
+      rollupOptions: {
+        // cloudflare:workers is a native CF Workers runtime module — the client
+        // build must not try to resolve it. The worker build gets it from the runtime.
+        external: ["cloudflare:workers"],
       },
     },
   },
