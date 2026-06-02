@@ -15,9 +15,9 @@ export default defineConfig({
   vite: {
     build: {
       rollupOptions: {
-        // These Cloudflare/Vinxi modules are Worker-runtime-only — exclude them
-        // from the client bundle so Rollup doesn't try to resolve them.
-        external: ["cloudflare:workers", "vinxi/http"],
+        // cloudflare:workers is a native Worker runtime module — exclude from
+        // the client bundle so Rollup doesn't try to resolve it there.
+        external: ["cloudflare:workers"],
       },
     },
   },
