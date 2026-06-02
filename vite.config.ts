@@ -17,6 +17,8 @@ export default defineConfig({
       rollupOptions: {
         // cloudflare:workers is a native Worker runtime module — exclude from
         // the client bundle so Rollup doesn't try to resolve it there.
+        // vinxi/http is hidden via /* @vite-ignore */ dynamic import in auth.server.ts
+        // so it doesn't need to be listed here — the Worker build bundles it normally.
         external: ["cloudflare:workers"],
       },
     },
