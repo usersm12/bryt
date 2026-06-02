@@ -8,7 +8,7 @@
     {
       "binding": "DB",
       "database_name": "bryt-products",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+      "database_id": "b53d2f33-9625-4109-884c-f068b75a5a90"
     }
   ],
   "r2_buckets": []
