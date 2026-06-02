@@ -1,8 +1,10 @@
 "use server";
 import { env } from "cloudflare:workers";
-import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
 
-const SESSION_COOKIE = "bryt_admin";
+// Only DB operations here — no cookie imports.
+// Cookie read/write happens inside createServerFn handlers in the route files
+// (server-bundle only), so they can safely use @tanstack/react-start/server there.
+
 const SESSION_HOURS = 24;
 
 function generateToken(): string {
@@ -15,33 +17,21 @@ function db() {
   return (env as unknown as CloudflareEnv).DB;
 }
 
-export async function createAdminSession(): Promise<string> {
+export async function createDbSession(): Promise<string> {
   const token = generateToken();
   const expiresAt = new Date(Date.now() + SESSION_HOURS * 3600 * 1000).toISOString();
   await db()
     .prepare("INSERT INTO admin_sessions (token, expires_at) VALUES (?, ?)")
     .bind(token, expiresAt)
     .run();
-  setCookie(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_HOURS * 3600,
-  });
   return token;
 }
 
-export async function clearAdminSession(): Promise<void> {
-  const token = getCookie(SESSION_COOKIE);
-  if (token) {
-    await db().prepare("DELETE FROM admin_sessions WHERE token = ?").bind(token).run();
-  }
-  deleteCookie(SESSION_COOKIE, { path: "/" });
+export async function deleteDbSession(token: string): Promise<void> {
+  await db().prepare("DELETE FROM admin_sessions WHERE token = ?").bind(token).run();
 }
 
-export async function isAdminAuthenticated(): Promise<boolean> {
-  const token = getCookie(SESSION_COOKIE);
-  if (!token) return false;
+export async function validateDbSession(token: string): Promise<boolean> {
   const row = await db()
     .prepare(
       "SELECT token FROM admin_sessions WHERE token = ? AND expires_at > datetime('now')",

@@ -3,10 +3,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
   checkAdminPassword,
-  createAdminSession,
-  clearAdminSession,
-  isAdminAuthenticated,
+  createDbSession,
+  deleteDbSession,
+  validateDbSession,
 } from "@/lib/auth.server";
+
+const SESSION_COOKIE = "bryt_admin";
+const SESSION_HOURS = 24;
 
 const loginFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as { password: string })
@@ -14,18 +17,36 @@ const loginFn = createServerFn({ method: "POST" })
     if (!checkAdminPassword(data.password)) {
       return { ok: false as const, error: "Incorrect password" };
     }
-    await createAdminSession();
+    const token = await createDbSession();
+    // Dynamic import keeps @tanstack/react-start/server out of the client bundle
+    const { setCookie } = await import("@tanstack/react-start/server");
+    setCookie(SESSION_COOKIE, token, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_HOURS * 3600,
+    });
     return { ok: true as const };
   });
 
 const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
-  await clearAdminSession();
+  const { getCookie, deleteCookie } = await import("@tanstack/react-start/server");
+  const token = getCookie(SESSION_COOKIE);
+  if (token) await deleteDbSession(token);
+  deleteCookie(SESSION_COOKIE, { path: "/" });
   return { ok: true };
+});
+
+const checkAuthFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { getCookie } = await import("@tanstack/react-start/server");
+  const token = getCookie(SESSION_COOKIE);
+  if (!token) return false;
+  return validateDbSession(token);
 });
 
 export const Route = createFileRoute("/admin/login")({
   loader: async () => {
-    const authed = await isAdminAuthenticated();
+    const authed = await checkAuthFn();
     if (authed) throw redirect({ to: "/admin" });
     return {};
   },
@@ -104,4 +125,4 @@ function LoginPage() {
   );
 }
 
-export { logoutFn };
+export { logoutFn, checkAuthFn };

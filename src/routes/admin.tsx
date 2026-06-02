@@ -1,10 +1,15 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { isAdminAuthenticated } from "@/lib/auth.server";
+import { validateDbSession } from "@/lib/auth.server";
 import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 
+const SESSION_COOKIE = "bryt_admin";
+
 const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
-  return isAdminAuthenticated();
+  const { getCookie } = await import("@tanstack/react-start/server");
+  const token = getCookie(SESSION_COOKIE);
+  if (!token) return false;
+  return validateDbSession(token);
 });
 
 export const Route = createFileRoute("/admin")({
