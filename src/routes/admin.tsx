@@ -59,13 +59,16 @@ function AdminLayout() {
         </nav>
 
         <div className="border-t border-slate-200 p-3">
-          <Link
-            to="/admin/login"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+          <button
+            onClick={() => {
+              document.cookie = "bryt_admin=; path=/; max-age=0; samesite=lax";
+              window.location.href = "/admin/login";
+            }}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
           >
             <LogOut className="h-4 w-4" />
             Sign out
-          </Link>
+          </button>
           <Link
             to="/"
             className="mt-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100"

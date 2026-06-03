@@ -10,8 +10,9 @@ import {
 const SESSION_COOKIE = "bryt_admin";
 const SESSION_HOURS = 24;
 
-// loginFn is an RPC call (client → server), so the h3 event context IS available.
-// setCookie() works correctly here.
+// h3-v2 strips Set-Cookie from 200 OK server function responses (only merges on non-ok).
+// So we return the token from the server and set the cookie client-side.
+// The auth middleware reads it via getCookie() which works for both httpOnly and regular cookies.
 const loginFn = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { password: string })
   .handler(async ({ data }) => {
@@ -19,23 +20,15 @@ const loginFn = createServerFn({ method: "POST" })
       return { ok: false as const, error: "Incorrect password" };
     }
     const token = await createDbSession();
-    const { setCookie } = await import("@tanstack/react-start/server");
-    setCookie(SESSION_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: SESSION_HOURS * 3600,
-    });
-    return { ok: true as const };
+    return { ok: true as const, token };
   });
 
-const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
-  const { getCookie, deleteCookie } = await import("@tanstack/react-start/server");
-  const token = getCookie(SESSION_COOKIE);
-  if (token) await deleteDbSession(token);
-  deleteCookie(SESSION_COOKIE, { path: "/" });
-  return { ok: true };
-});
+const logoutFn = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => d as { token: string })
+  .handler(async ({ data }) => {
+    await deleteDbSession(data.token);
+    return { ok: true };
+  });
 
 // Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
@@ -58,6 +51,8 @@ function LoginPage() {
     try {
       const result = await loginFn({ data: { password } });
       if (result.ok) {
+        // Set cookie client-side (h3-v2 strips Set-Cookie from 200 OK server fn responses)
+        document.cookie = `${SESSION_COOKIE}=${result.token}; path=/; max-age=${SESSION_HOURS * 3600}; samesite=lax`;
         window.location.href = "/admin";
       } else {
         setError(result.error);
