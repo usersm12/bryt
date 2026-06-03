@@ -8,10 +8,17 @@ const SESSION_COOKIE = "bryt_admin";
 // We cannot use getCookie() inside createServerFn during SSR because getServerFnById
 // uses dynamic imports that lose the AsyncLocalStorage context.
 const authMiddleware = createMiddleware().server(async ({ next }) => {
-  const { getCookie } = await import("@tanstack/react-start/server");
-  const token = getCookie(SESSION_COOKIE);
-  const isAuthed = token ? await validateDbSession(token) : false;
-  return next({ context: { isAuthed } });
+  try {
+    const { getCookie } = await import("@tanstack/react-start/server");
+    const token = getCookie(SESSION_COOKIE);
+    console.log("[auth] cookie token:", token ? token.slice(0, 8) + "..." : "MISSING");
+    const isAuthed = token ? await validateDbSession(token) : false;
+    console.log("[auth] isAuthed:", isAuthed);
+    return next({ context: { isAuthed } });
+  } catch (err) {
+    console.error("[auth] middleware error:", err);
+    return next({ context: { isAuthed: false } });
+  }
 });
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
