@@ -1,43 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import {
-  checkAdminPassword,
-  createDbSession,
-  deleteDbSession,
-} from "@/lib/auth.server";
 
 const SESSION_COOKIE = "bryt_admin";
 const SESSION_HOURS = 24;
-
-// h3-v2 strips Set-Cookie from 200 OK server function responses (only merges on non-ok).
-// So we return the token from the server and set the cookie client-side.
-// The auth middleware reads it via getCookie() which works for both httpOnly and regular cookies.
-const loginFn = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => d as { password: string })
-  .handler(async ({ data }) => {
-    try {
-      console.log("[login] checking password");
-      if (!checkAdminPassword(data.password)) {
-        console.log("[login] wrong password");
-        return { ok: false as const, error: "Incorrect password" };
-      }
-      console.log("[login] creating session");
-      const token = await createDbSession();
-      console.log("[login] session created, returning token");
-      return { ok: true as const, token };
-    } catch (err) {
-      console.error("[login] handler error:", err);
-      return { ok: false as const, error: "Server error. Please try again." };
-    }
-  });
-
-const logoutFn = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => d as { token: string })
-  .handler(async ({ data }) => {
-    await deleteDbSession(data.token);
-    return { ok: true };
-  });
 
 // Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
@@ -58,13 +23,17 @@ function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await loginFn({ data: { password } });
-      if (result.ok) {
-        // Set cookie client-side (h3-v2 strips Set-Cookie from 200 OK server fn responses)
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const result = await res.json() as { ok: boolean; token?: string; error?: string };
+      if (result.ok && result.token) {
         document.cookie = `${SESSION_COOKIE}=${result.token}; path=/; max-age=${SESSION_HOURS * 3600}; samesite=lax`;
         window.location.href = "/admin";
       } else {
-        setError(result.error);
+        setError(result.error ?? "Login failed. Please try again.");
       }
     } catch {
       setError("Login failed. Please try again.");
@@ -122,4 +91,10 @@ function LoginPage() {
   );
 }
 
-export { logoutFn };
+export function logoutFn(token: string) {
+  return fetch("/api/logout", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+}
