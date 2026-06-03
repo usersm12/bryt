@@ -8,7 +8,10 @@ import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 const listCats = createServerFn({ method: "GET" }).handler(() => dbListCategories());
 
 export const Route = createFileRoute("/admin/categories")({
-  loader: () => listCats(),
+  loader: () => {
+    if (typeof window === "undefined") return listCats(); // SSR: DB direct
+    return fetch("/api/categories").then((r) => r.json()) as Promise<DbCategory[]>; // Client nav: Hono
+  },
   component: CategoriesPage,
 });
 

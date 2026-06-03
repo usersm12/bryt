@@ -4,12 +4,14 @@ import { useState } from "react";
 import { dbListProducts, type DbProduct } from "@/lib/db.server";
 import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
-// Load: server function (calls DB directly during SSR + client)
 const listProducts = createServerFn({ method: "GET" })
   .handler(() => dbListProducts());
 
 export const Route = createFileRoute("/admin/products")({
-  loader: () => listProducts(),
+  loader: () => {
+    if (typeof window === "undefined") return listProducts(); // SSR: DB direct
+    return fetch("/api/products").then((r) => r.json()) as Promise<DbProduct[]>; // Client nav: Hono
+  },
   component: ProductsPage,
 });
 

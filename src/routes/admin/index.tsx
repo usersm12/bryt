@@ -6,7 +6,10 @@ import { Package, Tag, ImageIcon, FileText, ArrowRight } from "lucide-react";
 const getStats = createServerFn({ method: "GET" }).handler(() => dbGetStats());
 
 export const Route = createFileRoute("/admin/")({
-  loader: () => getStats(),
+  loader: () => {
+    if (typeof window === "undefined") return getStats(); // SSR: DB direct
+    return fetch("/api/stats").then((r) => r.json()); // Client nav: Hono
+  },
   component: Dashboard,
 });
 

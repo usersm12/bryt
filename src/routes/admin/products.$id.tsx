@@ -49,9 +49,20 @@ async function apiSaveProduct(payload: {
 export const Route = createFileRoute("/admin/products/$id")({
   loader: async ({ params }) => {
     if (params.id === "new") return getNew();
-    const result = await getProduct({ data: { id: params.id } });
-    if (!result.product) throw notFound();
-    return result;
+
+    if (typeof window === "undefined") {
+      // SSR: server function calls DB directly (no HTTP round-trip)
+      const result = await getProduct({ data: { id: params.id } });
+      if (!result.product) throw notFound();
+      return result;
+    }
+
+    // Client navigation: use Hono API (avoids Seroval deserialisation issues)
+    const res = await fetch(`/api/product?id=${encodeURIComponent(params.id)}`);
+    if (!res.ok) throw notFound();
+    const data = await res.json() as { product: DbProduct | null; categories: DbCategory[] };
+    if (!data.product) throw notFound();
+    return data;
   },
   component: ProductEditPage,
   notFoundComponent: () => (
