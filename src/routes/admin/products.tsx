@@ -1,19 +1,14 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { dbListProducts, dbDeleteProduct, type DbProduct } from "@/lib/db.server";
+import type { DbProduct } from "@/lib/db.server";
 import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
-const listProducts = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => d as { category?: string })
-  .handler(({ data }) => dbListProducts(data?.category));
-
-const deleteProduct = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => d as { slug: string })
-  .handler(({ data }) => dbDeleteProduct(data!.slug));
-
 export const Route = createFileRoute("/admin/products")({
-  loader: () => listProducts({ data: {} }),
+  loader: async () => {
+    const res = await fetch("/api/products");
+    if (!res.ok) throw new Error("Failed to load products");
+    return res.json() as Promise<DbProduct[]>;
+  },
   component: ProductsPage,
 });
 
@@ -37,7 +32,11 @@ function ProductsPage() {
 
   async function handleDelete(p: DbProduct) {
     if (!confirm(`Delete "${p.name}"?`)) return;
-    await deleteProduct({ data: { slug: p.slug } });
+    await fetch("/api/product/delete", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ slug: p.slug }),
+    });
     router.invalidate();
   }
 

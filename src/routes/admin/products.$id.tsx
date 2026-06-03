@@ -1,65 +1,45 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
-import {
-  dbGetProductBySlug,
-  dbCreateProduct,
-  dbUpdateProduct,
-  dbListCategories,
-  dbListGroups,
-  type DbProduct,
-  type ProductInput,
-  type DbCategory,
-} from "@/lib/db.server";
+import type { DbProduct, DbCategory, ProductInput } from "@/lib/db.server";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 
-// ─── Server functions ─────────────────────────────────────────────────────────
+// All data fetching uses plain fetch() to /api/* — bypasses TanStack Start
+// serialisation (Seroval) which fails for complex nested payloads.
 
-const getProduct = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => d as { id: string })
-  .handler(async ({ data }) => {
-    const id = data?.id;
-    if (!id) throw new Error("Missing product id");
-    const [product, categories] = await Promise.all([
-      dbGetProductBySlug(id),
-      dbListCategories(),
-    ]);
-    return { product, categories };
+type LoaderData = { product: DbProduct | null; categories: DbCategory[] };
+
+async function fetchProductData(id: string): Promise<LoaderData> {
+  const res = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error("Failed to load product");
+  return res.json() as Promise<LoaderData>;
+}
+
+async function fetchGroupsForCategory(categorySlug: string): Promise<{ name: string }[]> {
+  const res = await fetch(`/api/groups?categorySlug=${encodeURIComponent(categorySlug)}`);
+  if (!res.ok) return [];
+  return res.json() as Promise<{ name: string }[]>;
+}
+
+async function apiSaveProduct(payload: {
+  isNew: boolean;
+  originalSlug?: string;
+  data: ProductInput;
+}): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch("/api/product/save", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
   });
-
-const getNew = createServerFn({ method: "GET" }).handler(async () => {
-  const categories = await dbListCategories();
-  return { product: null as DbProduct | null, categories };
-});
-
-const getGroupsForCategory = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => d as { categorySlug: string })
-  .handler(async ({ data }) => dbListGroups(data?.categorySlug ?? ""));
-
-const saveProduct = createServerFn({ method: "POST" })
-  .inputValidator(
-    (d: unknown) =>
-      d as { isNew: boolean; originalSlug?: string; data: ProductInput },
-  )
-  .handler(async ({ data }) => {
-    if (!data) throw new Error("No data received");
-    if (data.isNew) {
-      await dbCreateProduct(data.data);
-    } else {
-      await dbUpdateProduct(data.originalSlug!, data.data);
-    }
-    return { ok: true };
-  });
-
+  return res.json() as Promise<{ ok: boolean; error?: string }>;
+}
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/admin/products/$id")({
   loader: async ({ params }) => {
-    if (params.id === "new") return getNew();
-    const result = await getProduct({ data: { id: params.id } });
-    if (!result.product) throw notFound();
-    return result;
+    const data = await fetchProductData(params.id);
+    if (params.id !== "new" && !data.product) throw notFound();
+    return data;
   },
   component: ProductEditPage,
   notFoundComponent: () => (
@@ -411,7 +391,7 @@ function ProductEditPage() {
 
   useEffect(() => {
     if (!categorySlug) return;
-    getGroupsForCategory({ data: { categorySlug } }).then((groups) =>
+    fetchGroupsForCategory(categorySlug).then((groups) =>
       setGroupOptions(groups.map((g) => g.name)),
     );
   }, [categorySlug]);
@@ -454,28 +434,27 @@ function ProductEditPage() {
     setSaving(true);
     setError("");
     try {
-      await saveProduct({
+      const result = await apiSaveProduct({
+        isNew,
+        originalSlug: product?.slug,
         data: {
-          isNew,
-          originalSlug: product?.slug,
-          data: {
-            slug,
-            name,
-            brand,
-            category_slug: categorySlug,
-            group_name: groupName,
-            description,
-            tagline,
-            intro,
-            image_url: imageUrl,
-            overview: JSON.stringify(overview),
-            tech_specs: JSON.stringify(techSpecs),
-            sections: JSON.stringify(sections),
-            applications: JSON.stringify(applications),
-            advantages: JSON.stringify(advantages),
-          },
+          slug,
+          name,
+          brand,
+          category_slug: categorySlug,
+          group_name: groupName,
+          description,
+          tagline,
+          intro,
+          image_url: imageUrl,
+          overview: JSON.stringify(overview),
+          tech_specs: JSON.stringify(techSpecs),
+          sections: JSON.stringify(sections),
+          applications: JSON.stringify(applications),
+          advantages: JSON.stringify(advantages),
         },
       });
+      if (!result.ok) throw new Error(result.error ?? "Save failed");
       router.navigate({ to: "/admin/products" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");

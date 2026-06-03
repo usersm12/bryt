@@ -1,14 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { dbGetStats } from "@/lib/db.server";
 import { Package, Tag, ImageIcon, FileText, ArrowRight } from "lucide-react";
 
-const getStats = createServerFn({ method: "GET" }).handler(async () => {
-  return dbGetStats();
-});
-
 export const Route = createFileRoute("/admin/")({
-  loader: async () => getStats(),
+  loader: async () => {
+    const res = await fetch("/api/stats");
+    if (!res.ok) return { categories: 0, products: 0, withImages: 0, withDetails: 0 };
+    return res.json() as Promise<{ categories: number; products: number; withImages: number; withDetails: number }>;
+  },
   component: Dashboard,
 });
 
