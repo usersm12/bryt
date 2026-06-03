@@ -16,11 +16,20 @@ const SESSION_HOURS = 24;
 const loginFn = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { password: string })
   .handler(async ({ data }) => {
-    if (!checkAdminPassword(data.password)) {
-      return { ok: false as const, error: "Incorrect password" };
+    try {
+      console.log("[login] checking password");
+      if (!checkAdminPassword(data.password)) {
+        console.log("[login] wrong password");
+        return { ok: false as const, error: "Incorrect password" };
+      }
+      console.log("[login] creating session");
+      const token = await createDbSession();
+      console.log("[login] session created, returning token");
+      return { ok: true as const, token };
+    } catch (err) {
+      console.error("[login] handler error:", err);
+      return { ok: false as const, error: "Server error. Please try again." };
     }
-    const token = await createDbSession();
-    return { ok: true as const, token };
   });
 
 const logoutFn = createServerFn({ method: "POST" })
