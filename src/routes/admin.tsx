@@ -6,12 +6,16 @@ import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location, context }) => {
     if (location.pathname === "/admin/login") return;
+    console.log("[beforeLoad] context keys:", Object.keys(context));
+    console.log("[beforeLoad] serverContext:", JSON.stringify(context.serverContext));
+    console.log("[beforeLoad] isAuthed:", context.isAuthed);
     // Server: middleware sets isAuthed via additionalContext.serverContext
     // Client: serverContext doesn't exist, so read cookie directly instead
     let isAuthed: boolean | undefined = context.serverContext?.isAuthed ?? context.isAuthed;
     if (typeof isAuthed === "undefined" && typeof document !== "undefined") {
       isAuthed = document.cookie.split(";").some((c) => c.trim().startsWith("bryt_admin="));
     }
+    console.log("[beforeLoad] final isAuthed:", isAuthed);
     if (!isAuthed) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,
