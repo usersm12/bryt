@@ -1,22 +1,12 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { validateDbSession } from "@/lib/auth.server";
 import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 
-const SESSION_COOKIE = "bryt_admin";
-
-const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const { getCookie } = await import("@tanstack/react-start/server");
-  const token = getCookie(SESSION_COOKIE);
-  if (!token) return false;
-  return validateDbSession(token);
-});
-
+// Auth is checked in authMiddleware (start.ts) which runs inside the h3 event context.
+// The result is passed as context.isAuthed — no createServerFn needed here.
 export const Route = createFileRoute("/admin")({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: ({ location, context }) => {
     if (location.pathname === "/admin/login") return;
-    const authed = await checkAuth();
-    if (!authed) throw redirect({ to: "/admin/login" });
+    if (!context.isAuthed) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,
 });

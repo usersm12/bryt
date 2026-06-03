@@ -5,12 +5,13 @@ import {
   checkAdminPassword,
   createDbSession,
   deleteDbSession,
-  validateDbSession,
 } from "@/lib/auth.server";
 
 const SESSION_COOKIE = "bryt_admin";
 const SESSION_HOURS = 24;
 
+// loginFn is an RPC call (client → server), so the h3 event context IS available.
+// setCookie() works correctly here.
 const loginFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as { password: string })
   .handler(async ({ data }) => {
@@ -18,7 +19,6 @@ const loginFn = createServerFn({ method: "POST" })
       return { ok: false as const, error: "Incorrect password" };
     }
     const token = await createDbSession();
-    // Dynamic import keeps @tanstack/react-start/server out of the client bundle
     const { setCookie } = await import("@tanstack/react-start/server");
     setCookie(SESSION_COOKIE, token, {
       httpOnly: true,
@@ -37,17 +37,10 @@ const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
   return { ok: true };
 });
 
-const checkAuthFn = createServerFn({ method: "GET" }).handler(async () => {
-  const { getCookie } = await import("@tanstack/react-start/server");
-  const token = getCookie(SESSION_COOKIE);
-  if (!token) return false;
-  return validateDbSession(token);
-});
-
+// Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
-  loader: async () => {
-    const authed = await checkAuthFn();
-    if (authed) throw redirect({ to: "/admin" });
+  loader: ({ context }) => {
+    if (context.isAuthed) throw redirect({ to: "/admin" });
     return {};
   },
   component: LoginPage,
@@ -125,4 +118,4 @@ function LoginPage() {
   );
 }
 
-export { logoutFn, checkAuthFn };
+export { logoutFn };

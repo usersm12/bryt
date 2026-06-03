@@ -7,7 +7,11 @@ export const getRouter = () => {
 
   const router = createRouter({
     routeTree,
-    context: { queryClient },
+    context: {
+      queryClient,
+      // injected by authMiddleware in start.ts on every server request
+      isAuthed: undefined as boolean | undefined,
+    },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
   });
