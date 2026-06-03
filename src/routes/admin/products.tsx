@@ -10,7 +10,7 @@ const listProducts = createServerFn({ method: "GET" })
 
 const deleteProduct = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { slug: string })
-  .handler(({ data }) => dbDeleteProduct(data.slug));
+  .handler(({ data }) => dbDeleteProduct(data!.slug));
 
 export const Route = createFileRoute("/admin/products")({
   loader: () => listProducts({ data: {} }),

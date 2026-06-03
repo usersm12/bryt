@@ -8,15 +8,15 @@ const listCats = createServerFn({ method: "GET" }).handler(() => dbListCategorie
 
 const createCat = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as Omit<DbCategory, "sort_order">)
-  .handler(({ data }) => dbCreateCategory(data));
+  .handler(({ data }) => dbCreateCategory(data!));
 
 const updateCat = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { slug: string; data: Partial<Omit<DbCategory, "slug">> })
-  .handler(({ data }) => dbUpdateCategory(data.slug, data.data));
+  .handler(({ data }) => dbUpdateCategory(data!.slug, data!.data));
 
 const deleteCat = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { slug: string })
-  .handler(({ data }) => dbDeleteCategory(data.slug));
+  .handler(({ data }) => dbDeleteCategory(data!.slug));
 
 export const Route = createFileRoute("/admin/categories")({
   loader: () => listCats(),

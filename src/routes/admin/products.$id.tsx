@@ -18,8 +18,10 @@ import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 const getProduct = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => d as { id: string })
   .handler(async ({ data }) => {
+    const id = data?.id;
+    if (!id) throw new Error("Missing product id");
     const [product, categories] = await Promise.all([
-      dbGetProductBySlug(data.id),
+      dbGetProductBySlug(id),
       dbListCategories(),
     ]);
     return { product, categories };
@@ -32,7 +34,7 @@ const getNew = createServerFn({ method: "GET" }).handler(async () => {
 
 const getGroupsForCategory = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => d as { categorySlug: string })
-  .handler(async ({ data }) => dbListGroups(data.categorySlug));
+  .handler(async ({ data }) => dbListGroups(data?.categorySlug ?? ""));
 
 const saveProduct = createServerFn({ method: "POST" })
   .inputValidator(
@@ -40,6 +42,7 @@ const saveProduct = createServerFn({ method: "POST" })
       d as { isNew: boolean; originalSlug?: string; data: ProductInput },
   )
   .handler(async ({ data }) => {
+    if (!data) throw new Error("No data received");
     if (data.isNew) {
       await dbCreateProduct(data.data);
     } else {
