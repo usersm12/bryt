@@ -17,6 +17,12 @@ import {
 // Hono uses generic bindings — we cast to our env type where needed
 export const api = new Hono();
 
+// Global error handler — logs actual error and returns JSON
+api.onError((err, c) => {
+  console.error("[Hono API error]", err.message, err.stack);
+  return c.json({ ok: false, error: err.message }, 500);
+});
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 api.post("/api/login", async (c) => {
