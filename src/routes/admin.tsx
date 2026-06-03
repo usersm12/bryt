@@ -6,7 +6,9 @@ import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location, context }) => {
     if (location.pathname === "/admin/login") return;
-    if (!context.isAuthed) throw redirect({ to: "/admin/login" });
+    // Middleware sets isAuthed in serverContext (TanStack Start nests it there)
+    const isAuthed = context.serverContext?.isAuthed ?? context.isAuthed;
+    if (!isAuthed) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,
 });

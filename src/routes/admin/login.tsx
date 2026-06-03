@@ -7,7 +7,8 @@ const SESSION_HOURS = 24;
 // Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
   loader: ({ context }) => {
-    if (context.isAuthed) throw redirect({ to: "/admin" });
+    const isAuthed = context.serverContext?.isAuthed ?? context.isAuthed;
+    if (isAuthed) throw redirect({ to: "/admin" });
     return {};
   },
   component: LoginPage,

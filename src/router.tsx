@@ -9,8 +9,10 @@ export const getRouter = () => {
     routeTree,
     context: {
       queryClient,
-      // injected by authMiddleware in start.ts on every server request
+      // TanStack Start passes middleware context nested under serverContext.
+      // The authMiddleware sets serverContext.isAuthed via next({ context: { isAuthed } }).
       isAuthed: undefined as boolean | undefined,
+      serverContext: undefined as { isAuthed?: boolean } | undefined,
     },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
