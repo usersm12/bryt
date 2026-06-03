@@ -6,8 +6,12 @@ import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location, context }) => {
     if (location.pathname === "/admin/login") return;
-    // Middleware sets isAuthed in serverContext (TanStack Start nests it there)
-    const isAuthed = context.serverContext?.isAuthed ?? context.isAuthed;
+    // Server: middleware sets isAuthed via additionalContext.serverContext
+    // Client: serverContext doesn't exist, so read cookie directly instead
+    let isAuthed: boolean | undefined = context.serverContext?.isAuthed ?? context.isAuthed;
+    if (typeof isAuthed === "undefined" && typeof document !== "undefined") {
+      isAuthed = document.cookie.split(";").some((c) => c.trim().startsWith("bryt_admin="));
+    }
     if (!isAuthed) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,

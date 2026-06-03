@@ -7,7 +7,10 @@ const SESSION_HOURS = 24;
 // Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
   loader: ({ context }) => {
-    const isAuthed = context.serverContext?.isAuthed ?? context.isAuthed;
+    let isAuthed: boolean | undefined = context.serverContext?.isAuthed ?? context.isAuthed;
+    if (typeof isAuthed === "undefined" && typeof document !== "undefined") {
+      isAuthed = document.cookie.split(";").some((c) => c.trim().startsWith("bryt_admin="));
+    }
     if (isAuthed) throw redirect({ to: "/admin" });
     return {};
   },
