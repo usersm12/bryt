@@ -3,22 +3,35 @@ import { renderErrorPage } from "./lib/error-page";
 import { validateDbSession } from "./lib/auth.server";
 
 const SESSION_COOKIE = "bryt_admin";
+const LOGIN_PATH = "/admin/login";
+const ADMIN_PREFIX = "/admin";
 
 // Auth middleware runs inside the h3 request context — getCookie() works here.
-// We cannot use getCookie() inside createServerFn during SSR because getServerFnById
-// uses dynamic imports that lose the AsyncLocalStorage context.
-const authMiddleware = createMiddleware().server(async ({ next }) => {
-  try {
-    const { getCookie } = await import("@tanstack/react-start/server");
-    const token = getCookie(SESSION_COOKIE);
-    console.log("[auth] cookie token:", token ? token.slice(0, 8) + "..." : "MISSING");
-    const isAuthed = token ? await validateDbSession(token) : false;
-    console.log("[auth] isAuthed:", isAuthed);
-    return next({ context: { isAuthed } });
-  } catch (err) {
-    console.error("[auth] middleware error:", err);
+// We also redirect unauthenticated /admin requests directly from the middleware,
+// since beforeLoad cannot reliably access cookies server-side.
+const authMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const url = new URL(request.url);
+  const isAdminRoute = url.pathname.startsWith(ADMIN_PREFIX) && url.pathname !== LOGIN_PATH;
+  const isApiRoute = url.pathname.startsWith("/api/");
+
+  // Skip auth for non-admin routes and API endpoints
+  if (!isAdminRoute || isApiRoute) {
     return next({ context: { isAuthed: false } });
   }
+
+  const { getCookie } = await import("@tanstack/react-start/server");
+  const token = getCookie(SESSION_COOKIE);
+  const isAuthed = token ? await validateDbSession(token) : false;
+
+  if (!isAuthed) {
+    // Redirect unauthenticated admin requests to login immediately
+    return new Response(null, {
+      status: 302,
+      headers: { Location: LOGIN_PATH },
+    });
+  }
+
+  return next({ context: { isAuthed: true } });
 });
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
@@ -28,7 +41,7 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
-    console.error(error);
+    console.error("[errorMiddleware]", error);
     return new Response(renderErrorPage(), {
       status: 500,
       headers: { "content-type": "text/html; charset=utf-8" },

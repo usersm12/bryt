@@ -1,30 +1,19 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { validateDbSession } from "@/lib/auth.server";
 import { LayoutGrid, Package, LogOut, Tag, BarChart3 } from "lucide-react";
 
 const SESSION_COOKIE = "bryt_admin";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: async ({ location }) => {
+  // Server-side auth is handled by authMiddleware in start.ts (302 redirect).
+  // Client-side: check cookie directly since middleware context doesn't flow here.
+  beforeLoad: ({ location }) => {
     if (location.pathname === "/admin/login") return;
-
-    // Client-side: check cookie directly (no server context available)
     if (typeof window !== "undefined") {
       const isAuthed = document.cookie.split(";").some((c) =>
         c.trim().startsWith(`${SESSION_COOKIE}=`),
       );
       if (!isAuthed) throw redirect({ to: "/admin/login" });
-      return;
     }
-
-    // Server-side: use new Function() to hide the import from ALL static analysers
-    // (import protection plugin, Rollup tree-shaking). The client branch above returns
-    // early so this code never runs in the browser; the server bundle has the module.
-    // eslint-disable-next-line no-new-func
-    const { getCookie } = await new Function('return import("@tanstack/react-start/server")')() as typeof import("@tanstack/react-start/server");
-    const token = getCookie(SESSION_COOKIE);
-    const isAuthed = token ? await validateDbSession(token) : false;
-    if (!isAuthed) throw redirect({ to: "/admin/login" });
   },
   component: AdminLayout,
 });
