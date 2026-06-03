@@ -95,7 +95,8 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   if (!contentType.includes("application/json")) return response;
   const body = await response.clone().text();
   if (!isCatastrophicSsrErrorBody(body, response.status)) return response;
-  console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
+  const ssrError = consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`);
+  console.error("[SSR ERROR]", ssrError);
   return brandedErrorResponse();
 }
 
