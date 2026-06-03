@@ -16,7 +16,7 @@ import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 // ─── Server functions ─────────────────────────────────────────────────────────
 
 const getProduct = createServerFn({ method: "GET" })
-  .validator((d: unknown) => d as { id: string })
+  .inputValidator((d: unknown) => d as { id: string })
   .handler(async ({ data }) => {
     const [product, categories] = await Promise.all([
       dbGetProductBySlug(data.id),
@@ -31,11 +31,11 @@ const getNew = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 const getGroupsForCategory = createServerFn({ method: "GET" })
-  .validator((d: unknown) => d as { categorySlug: string })
+  .inputValidator((d: unknown) => d as { categorySlug: string })
   .handler(async ({ data }) => dbListGroups(data.categorySlug));
 
 const saveProduct = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (d: unknown) =>
       d as { isNew: boolean; originalSlug?: string; data: ProductInput },
   )

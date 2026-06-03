@@ -13,7 +13,7 @@ const SESSION_HOURS = 24;
 // loginFn is an RPC call (client → server), so the h3 event context IS available.
 // setCookie() works correctly here.
 const loginFn = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as { password: string })
+  .inputValidator((d: unknown) => d as { password: string })
   .handler(async ({ data }) => {
     if (!checkAdminPassword(data.password)) {
       return { ok: false as const, error: "Incorrect password" };

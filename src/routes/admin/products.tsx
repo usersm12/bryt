@@ -5,11 +5,11 @@ import { dbListProducts, dbDeleteProduct, type DbProduct } from "@/lib/db.server
 import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
 const listProducts = createServerFn({ method: "GET" })
-  .validator((d: unknown) => d as { category?: string })
+  .inputValidator((d: unknown) => d as { category?: string })
   .handler(({ data }) => dbListProducts(data.category));
 
 const deleteProduct = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as { slug: string })
+  .inputValidator((d: unknown) => d as { slug: string })
   .handler(({ data }) => dbDeleteProduct(data.slug));
 
 export const Route = createFileRoute("/admin/products")({

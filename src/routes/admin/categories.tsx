@@ -7,15 +7,15 @@ import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 const listCats = createServerFn({ method: "GET" }).handler(() => dbListCategories());
 
 const createCat = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as Omit<DbCategory, "sort_order">)
+  .inputValidator((d: unknown) => d as Omit<DbCategory, "sort_order">)
   .handler(({ data }) => dbCreateCategory(data));
 
 const updateCat = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as { slug: string; data: Partial<Omit<DbCategory, "slug">> })
+  .inputValidator((d: unknown) => d as { slug: string; data: Partial<Omit<DbCategory, "slug">> })
   .handler(({ data }) => dbUpdateCategory(data.slug, data.data));
 
 const deleteCat = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as { slug: string })
+  .inputValidator((d: unknown) => d as { slug: string })
   .handler(({ data }) => dbDeleteCategory(data.slug));
 
 export const Route = createFileRoute("/admin/categories")({
