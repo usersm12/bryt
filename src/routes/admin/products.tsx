@@ -6,7 +6,7 @@ import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
 const listProducts = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => d as { category?: string })
-  .handler(({ data }) => dbListProducts(data.category));
+  .handler(({ data }) => dbListProducts(data?.category));
 
 const deleteProduct = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => d as { slug: string })
