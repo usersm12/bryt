@@ -10,28 +10,33 @@ const ADMIN_PREFIX = "/admin";
 // We also redirect unauthenticated /admin requests directly from the middleware,
 // since beforeLoad cannot reliably access cookies server-side.
 const authMiddleware = createMiddleware().server(async ({ next, request }) => {
-  const url = new URL(request.url);
-  const isAdminRoute = url.pathname.startsWith(ADMIN_PREFIX) && url.pathname !== LOGIN_PATH;
-  const isApiRoute = url.pathname.startsWith("/api/");
+  try {
+    const url = new URL(request.url);
+    const isAdminRoute = url.pathname.startsWith(ADMIN_PREFIX) && url.pathname !== LOGIN_PATH;
+    const isApiRoute = url.pathname.startsWith("/api/");
 
-  // Skip auth for non-admin routes and API endpoints
-  if (!isAdminRoute || isApiRoute) {
+    // Skip auth for non-admin routes and API endpoints
+    if (!isAdminRoute || isApiRoute) {
+      return next({ context: { isAuthed: false } });
+    }
+
+    const { getCookie } = await import("@tanstack/react-start/server");
+    const token = getCookie(SESSION_COOKIE);
+    const isAuthed = token ? await validateDbSession(token) : false;
+
+    if (!isAuthed) {
+      return new Response(null, {
+        status: 302,
+        headers: { Location: LOGIN_PATH },
+      });
+    }
+
+    return next({ context: { isAuthed: true } });
+  } catch (err) {
+    console.error("[authMiddleware error]", err);
+    // On unexpected error, let the request through so it doesn't infinite-loop
     return next({ context: { isAuthed: false } });
   }
-
-  const { getCookie } = await import("@tanstack/react-start/server");
-  const token = getCookie(SESSION_COOKIE);
-  const isAuthed = token ? await validateDbSession(token) : false;
-
-  if (!isAuthed) {
-    // Redirect unauthenticated admin requests to login immediately
-    return new Response(null, {
-      status: 302,
-      headers: { Location: LOGIN_PATH },
-    });
-  }
-
-  return next({ context: { isAuthed: true } });
 });
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {

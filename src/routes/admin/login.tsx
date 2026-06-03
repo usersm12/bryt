@@ -2,7 +2,8 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 
 const SESSION_COOKIE = "bryt_admin";
-const SESSION_HOURS = 24;
+const SESSION_DAYS = 360;
+const SESSION_MAX_AGE = SESSION_DAYS * 24 * 3600; // seconds
 
 // Auth state comes from authMiddleware via context.isAuthed — no server function needed.
 export const Route = createFileRoute("/admin/login")({
@@ -34,7 +35,7 @@ function LoginPage() {
       });
       const result = await res.json() as { ok: boolean; token?: string; error?: string };
       if (result.ok && result.token) {
-        document.cookie = `${SESSION_COOKIE}=${result.token}; path=/; max-age=${SESSION_HOURS * 3600}; samesite=lax`;
+        document.cookie = `${SESSION_COOKIE}=${result.token}; path=/; max-age=${SESSION_MAX_AGE}; samesite=lax; secure`;
         window.location.href = "/admin";
       } else {
         setError(result.error ?? "Login failed. Please try again.");

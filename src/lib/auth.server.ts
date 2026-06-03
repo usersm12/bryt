@@ -1,11 +1,7 @@
 "use server";
 import { env } from "cloudflare:workers";
 
-// Only DB operations here — no cookie imports.
-// Cookie read/write happens inside createServerFn handlers in the route files
-// (server-bundle only), so they can safely use @tanstack/react-start/server there.
-
-const SESSION_HOURS = 24;
+const SESSION_DAYS = 360; // 360-day sessions
 
 function generateToken(): string {
   const bytes = new Uint8Array(32);
@@ -19,7 +15,8 @@ function db() {
 
 export async function createDbSession(): Promise<string> {
   const token = generateToken();
-  const expiresAt = new Date(Date.now() + SESSION_HOURS * 3600 * 1000).toISOString();
+  // Store as Unix epoch seconds — avoids ISO vs SQLite datetime format mismatches
+  const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DAYS * 24 * 3600;
   await db()
     .prepare("INSERT INTO admin_sessions (token, expires_at) VALUES (?, ?)")
     .bind(token, expiresAt)
@@ -32,13 +29,16 @@ export async function deleteDbSession(token: string): Promise<void> {
 }
 
 export async function validateDbSession(token: string): Promise<boolean> {
-  const row = await db()
-    .prepare(
-      "SELECT token FROM admin_sessions WHERE token = ? AND expires_at > datetime('now')",
-    )
-    .bind(token)
-    .first<{ token: string }>();
-  return !!row;
+  try {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const row = await db()
+      .prepare("SELECT token FROM admin_sessions WHERE token = ? AND expires_at > ?")
+      .bind(token, nowSeconds)
+      .first<{ token: string }>();
+    return !!row;
+  } catch {
+    return false;
+  }
 }
 
 export function checkAdminPassword(password: string): boolean {

@@ -68,7 +68,7 @@ function AdminLayout() {
         <div className="border-t border-slate-200 p-3">
           <button
             onClick={() => {
-              document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; samesite=lax`;
+              document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; samesite=lax; secure`;
               window.location.href = "/admin/login";
             }}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900"
