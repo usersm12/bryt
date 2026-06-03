@@ -1,45 +1,57 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
-import type { DbProduct, DbCategory, ProductInput } from "@/lib/db.server";
+import {
+  dbGetProductBySlug, dbListCategories, dbListGroups,
+  type DbProduct, type DbCategory, type ProductInput,
+} from "@/lib/db.server";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 
-// All data fetching uses plain fetch() to /api/* — bypasses TanStack Start
-// serialisation (Seroval) which fails for complex nested payloads.
+// Load: server functions (DB direct on SSR, Seroval on client — simple args work fine)
+const getProduct = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => d as { id: string })
+  .handler(async ({ data }) => {
+    const id = data?.id ?? "";
+    const [product, categories] = await Promise.all([
+      dbGetProductBySlug(id),
+      dbListCategories(),
+    ]);
+    return { product: product ?? null, categories };
+  });
 
-type LoaderData = { product: DbProduct | null; categories: DbCategory[] };
+const getNew = createServerFn({ method: "GET" }).handler(async () => {
+  const categories = await dbListCategories();
+  return { product: null as DbProduct | null, categories };
+});
 
-async function fetchProductData(id: string): Promise<LoaderData> {
-  const res = await fetch(`/api/product?id=${encodeURIComponent(id)}`);
-  if (!res.ok) throw new Error("Failed to load product");
-  return res.json() as Promise<LoaderData>;
+// Groups: Hono API (client-side useEffect, relative URL works in browser)
+async function fetchGroups(categorySlug: string): Promise<{ name: string }[]> {
+  try {
+    const res = await fetch(`/api/groups?categorySlug=${encodeURIComponent(categorySlug)}`);
+    return res.ok ? res.json() : [];
+  } catch { return []; }
 }
 
-async function fetchGroupsForCategory(categorySlug: string): Promise<{ name: string }[]> {
-  const res = await fetch(`/api/groups?categorySlug=${encodeURIComponent(categorySlug)}`);
-  if (!res.ok) return [];
-  return res.json() as Promise<{ name: string }[]>;
-}
-
+// Save: Hono API (complex payload, bypasses Seroval serialisation)
 async function apiSaveProduct(payload: {
-  isNew: boolean;
-  originalSlug?: string;
-  data: ProductInput;
+  isNew: boolean; originalSlug?: string; data: ProductInput;
 }): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch("/api/product/save", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return res.json() as Promise<{ ok: boolean; error?: string }>;
+  return res.json();
 }
 
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/admin/products/$id")({
   loader: async ({ params }) => {
-    const data = await fetchProductData(params.id);
-    if (params.id !== "new" && !data.product) throw notFound();
-    return data;
+    if (params.id === "new") return getNew();
+    const result = await getProduct({ data: { id: params.id } });
+    if (!result.product) throw notFound();
+    return result;
   },
   component: ProductEditPage,
   notFoundComponent: () => (
@@ -391,7 +403,7 @@ function ProductEditPage() {
 
   useEffect(() => {
     if (!categorySlug) return;
-    fetchGroupsForCategory(categorySlug).then((groups) =>
+    fetchGroups(categorySlug).then((groups) =>
       setGroupOptions(groups.map((g) => g.name)),
     );
   }, [categorySlug]);

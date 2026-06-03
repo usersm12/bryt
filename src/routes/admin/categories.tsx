@@ -1,19 +1,27 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import type { DbCategory } from "@/lib/db.server";
+import { dbListCategories, type DbCategory } from "@/lib/db.server";
 import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 
+// Load via server function (DB direct on SSR, works on client too)
+const listCats = createServerFn({ method: "GET" }).handler(() => dbListCategories());
+
 export const Route = createFileRoute("/admin/categories")({
-  loader: async () => {
-    const res = await fetch("/api/categories");
-    if (!res.ok) throw new Error("Failed to load categories");
-    return res.json() as Promise<DbCategory[]>;
-  },
+  loader: () => listCats(),
   component: CategoriesPage,
 });
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function post(path: string, body: unknown) {
+  return fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
 }
 
 function InlineEdit({ cat, onDone }: { cat: DbCategory; onDone: () => void }) {
@@ -23,11 +31,7 @@ function InlineEdit({ cat, onDone }: { cat: DbCategory; onDone: () => void }) {
   const router = useRouter();
 
   async function save() {
-    await fetch("/api/category/update", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ slug: cat.slug, data: { name, tagline, description } }),
-    });
+    await post("/api/category/update", { slug: cat.slug, data: { name, tagline, description } });
     router.invalidate();
     onDone();
   }
@@ -60,12 +64,7 @@ function AddCategory({ onDone }: { onDone: () => void }) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    const slug = slugify(name);
-    await fetch("/api/category/create", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ slug, name, tagline, description }),
-    });
+    await post("/api/category/create", { slug: slugify(name), name, tagline, description });
     router.invalidate();
     onDone();
   }
@@ -95,11 +94,7 @@ function CategoriesPage() {
 
   async function handleDelete(slug: string, name: string) {
     if (!confirm(`Delete category "${name}"? This will also delete all its products.`)) return;
-    await fetch("/api/category/delete", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ slug }),
-    });
+    await post("/api/category/delete", { slug });
     router.invalidate();
   }
 
@@ -115,7 +110,6 @@ function CategoriesPage() {
           <Plus className="h-4 w-4" /> Add Category
         </button>
       </div>
-
       <div className="space-y-3">
         {adding && <AddCategory onDone={() => setAdding(false)} />}
         {categories.map((cat) => (
