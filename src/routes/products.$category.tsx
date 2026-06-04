@@ -103,10 +103,11 @@ function CategoryPage() {
                         {p.brand}
                       </div>
                     )}
-                    <div className="flex flex-col items-center gap-2 opacity-40 group-hover:opacity-60 transition">
-                      <svg className="h-14 w-14 text-primary" fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24">
-                        <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
-                        <path d="M3 7l9 6 9-6"/>
+                    <div className="flex flex-col items-center gap-2 opacity-30 group-hover:opacity-50 transition">
+                      <svg className="h-16 w-16 text-primary" fill="none" stroke="currentColor" strokeWidth={0.8} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 3H8a1 1 0 0 0-1 1v3h10V4a1 1 0 0 0-1-1Z"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 17v3M16 17v3M12 10v4"/>
                       </svg>
                     </div>
                   </div>
