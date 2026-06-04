@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, Outlet, useMatches } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { dbGetCategory, type Category, type ProductGroup, type Product } from "@/lib/db.server";
-import { ChevronRight, ArrowRight } from "lucide-react";
+import { ChevronRight, ArrowRight, Package2 } from "lucide-react";
 
 const loadCategory = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => d as { slug: string })
@@ -103,13 +103,7 @@ function CategoryPage() {
                         {p.brand}
                       </div>
                     )}
-                    <div className="flex flex-col items-center gap-2 opacity-30 group-hover:opacity-50 transition">
-                      <svg className="h-16 w-16 text-primary" fill="none" stroke="currentColor" strokeWidth={0.8} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 3H8a1 1 0 0 0-1 1v3h10V4a1 1 0 0 0-1-1Z"/>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 17v3M16 17v3M12 10v4"/>
-                      </svg>
-                    </div>
+                    <Package2 className="h-16 w-16 text-primary/25 group-hover:text-primary/40 transition" strokeWidth={0.8} />
                   </div>
 
                   {/* Content */}
