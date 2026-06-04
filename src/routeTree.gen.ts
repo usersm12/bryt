@@ -18,9 +18,15 @@ import { Route as HandpiecesRouteImport } from './routes/handpieces'
 import { Route as DentalChairsRouteImport } from './routes/dental-chairs'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BrandsRouteImport } from './routes/brands'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ProductsCategoryRouteImport } from './routes/products.$category'
+import { Route as AdminProductsRouteImport } from './routes/admin/products'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminCategoriesRouteImport } from './routes/admin/categories'
 import { Route as ProductsCategoryProductRouteImport } from './routes/products.$category.$product'
+import { Route as AdminProductsIdRouteImport } from './routes/admin/products.$id'
 
 const TurnkeyRoute = TurnkeyRouteImport.update({
   id: '/turnkey',
@@ -67,24 +73,55 @@ const BrandsRoute = BrandsRouteImport.update({
   path: '/brands',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProductsCategoryRoute = ProductsCategoryRouteImport.update({
   id: '/$category',
   path: '/$category',
   getParentRoute: () => ProductsRoute,
 } as any)
+const AdminProductsRoute = AdminProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ProductsCategoryProductRoute = ProductsCategoryProductRouteImport.update({
   id: '/$product',
   path: '/$product',
   getParentRoute: () => ProductsCategoryRoute,
 } as any)
+const AdminProductsIdRoute = AdminProductsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminProductsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/brands': typeof BrandsRoute
   '/contact': typeof ContactRoute
   '/dental-chairs': typeof DentalChairsRoute
@@ -94,7 +131,12 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/products': typeof AdminProductsRouteWithChildren
   '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesByTo {
@@ -108,12 +150,18 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/products': typeof AdminProductsRouteWithChildren
   '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/admin': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/brands': typeof BrandsRoute
   '/contact': typeof ContactRoute
   '/dental-chairs': typeof DentalChairsRoute
@@ -123,13 +171,19 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sterilisation': typeof SterilisationRoute
   '/turnkey': typeof TurnkeyRoute
+  '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/products': typeof AdminProductsRouteWithChildren
   '/products/$category': typeof ProductsCategoryRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRoute
   '/products/$category/$product': typeof ProductsCategoryProductRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/brands'
     | '/contact'
     | '/dental-chairs'
@@ -139,7 +193,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/admin/categories'
+    | '/admin/login'
+    | '/admin/products'
     | '/products/$category'
+    | '/admin/'
+    | '/admin/products/$id'
     | '/products/$category/$product'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -153,11 +212,17 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/admin/categories'
+    | '/admin/login'
+    | '/admin/products'
     | '/products/$category'
+    | '/admin'
+    | '/admin/products/$id'
     | '/products/$category/$product'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/brands'
     | '/contact'
     | '/dental-chairs'
@@ -167,12 +232,18 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/sterilisation'
     | '/turnkey'
+    | '/admin/categories'
+    | '/admin/login'
+    | '/admin/products'
     | '/products/$category'
+    | '/admin/'
+    | '/admin/products/$id'
     | '/products/$category/$product'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BrandsRoute: typeof BrandsRoute
   ContactRoute: typeof ContactRoute
   DentalChairsRoute: typeof DentalChairsRoute
@@ -249,12 +320,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/products/$category': {
       id: '/products/$category'
@@ -263,6 +348,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsCategoryRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/admin/products': {
+      id: '/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AdminProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/categories': {
+      id: '/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AdminCategoriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/products/$category/$product': {
       id: '/products/$category/$product'
       path: '/$product'
@@ -270,8 +376,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsCategoryProductRouteImport
       parentRoute: typeof ProductsCategoryRoute
     }
+    '/admin/products/$id': {
+      id: '/admin/products/$id'
+      path: '/$id'
+      fullPath: '/admin/products/$id'
+      preLoaderRoute: typeof AdminProductsIdRouteImport
+      parentRoute: typeof AdminProductsRoute
+    }
   }
 }
+
+interface AdminProductsRouteChildren {
+  AdminProductsIdRoute: typeof AdminProductsIdRoute
+}
+
+const AdminProductsRouteChildren: AdminProductsRouteChildren = {
+  AdminProductsIdRoute: AdminProductsIdRoute,
+}
+
+const AdminProductsRouteWithChildren = AdminProductsRoute._addFileChildren(
+  AdminProductsRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminProductsRoute: typeof AdminProductsRouteWithChildren
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminProductsRoute: AdminProductsRouteWithChildren,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ProductsCategoryRouteChildren {
   ProductsCategoryProductRoute: typeof ProductsCategoryProductRoute
@@ -298,6 +439,7 @@ const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   BrandsRoute: BrandsRoute,
   ContactRoute: ContactRoute,
   DentalChairsRoute: DentalChairsRoute,

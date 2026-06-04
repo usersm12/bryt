@@ -1,10 +1,19 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouter, useMatchRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import type { DbProduct } from "@/lib/db.server";
 import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
+// admin/products.tsx is the PARENT of admin/products.$id.tsx in TanStack Router.
+// It must render <Outlet /> when a child route ($id) is active, otherwise show the list.
+function ProductsLayout() {
+  const matchRoute = useMatchRoute();
+  const isEditRoute = matchRoute({ to: "/admin/products/$id" });
+  if (isEditRoute) return <Outlet />;
+  return <ProductsPage />;
+}
+
 export const Route = createFileRoute("/admin/products")({
-  component: ProductsPage,
+  component: ProductsLayout,
 });
 
 function ProductsPage() {
