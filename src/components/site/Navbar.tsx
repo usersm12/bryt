@@ -26,7 +26,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" onClick={() => setMega(null)}>
-          <img src={brytLogo} alt="BRYT Dental Technologies" className="h-10 w-auto" />
+          <img src={brytLogo} alt="BRYT Dental Technologies" className="h-14 w-auto" />
         </Link>
 
         {/* Desktop nav */}
