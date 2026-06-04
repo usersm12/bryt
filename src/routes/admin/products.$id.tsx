@@ -1,30 +1,10 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import {
-  dbGetProductBySlug, dbListCategories, dbListGroups,
-  type DbProduct, type DbCategory, type ProductInput,
-} from "@/lib/db.server";
+import type { DbProduct, DbCategory, ProductInput } from "@/lib/db.server";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 
-// Load: server functions (DB direct on SSR, Seroval on client — simple args work fine)
-const getProduct = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => d as { id: string })
-  .handler(async ({ data }) => {
-    const id = data?.id ?? "";
-    const [product, categories] = await Promise.all([
-      dbGetProductBySlug(id),
-      dbListCategories(),
-    ]);
-    return { product: product ?? null, categories };
-  });
+// All data via Hono /api/* — pure client-side fetching, no Seroval issues
 
-const getNew = createServerFn({ method: "GET" }).handler(async () => {
-  const categories = await dbListCategories();
-  return { product: null as DbProduct | null, categories };
-});
-
-// Groups: Hono API (client-side useEffect, relative URL works in browser)
 async function fetchGroups(categorySlug: string): Promise<{ name: string }[]> {
   try {
     const res = await fetch(`/api/groups?categorySlug=${encodeURIComponent(categorySlug)}`);
@@ -32,13 +12,11 @@ async function fetchGroups(categorySlug: string): Promise<{ name: string }[]> {
   } catch { return []; }
 }
 
-// Save: Hono API (complex payload, bypasses Seroval serialisation)
 async function apiSaveProduct(payload: {
   isNew: boolean; originalSlug?: string; data: ProductInput;
 }): Promise<{ ok: boolean; error?: string }> {
   const res = await fetch("/api/product/save", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+    method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify(payload),
   });
   return res.json();
@@ -47,30 +25,11 @@ async function apiSaveProduct(payload: {
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export const Route = createFileRoute("/admin/products/$id")({
-  loader: async ({ params }) => {
-    if (params.id === "new") return getNew();
-
-    if (typeof window === "undefined") {
-      // SSR: server function calls DB directly (no HTTP round-trip)
-      const result = await getProduct({ data: { id: params.id } });
-      if (!result.product) throw notFound();
-      return result;
-    }
-
-    // Client navigation: use Hono API (avoids Seroval deserialisation issues)
-    const res = await fetch(`/api/product?id=${encodeURIComponent(params.id)}`);
-    if (!res.ok) throw notFound();
-    const data = await res.json() as { product: DbProduct | null; categories: DbCategory[] };
-    if (!data.product) throw notFound();
-    return data;
-  },
   component: ProductEditPage,
   notFoundComponent: () => (
     <div className="p-8 text-center text-slate-500">
       Product not found.{" "}
-      <Link to="/admin/products" className="text-primary underline">
-        Back to products
-      </Link>
+      <Link to="/admin/products" className="text-primary underline">Back to products</Link>
     </div>
   ),
 });
@@ -397,59 +356,89 @@ function ImageUploader({
 // ─── Main product form ────────────────────────────────────────────────────────
 
 function ProductEditPage() {
-  const { product, categories } = Route.useLoaderData();
   const params = Route.useParams();
   const isNew = params.id === "new";
   const router = useRouter();
 
+  // Data loading state
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<DbProduct | null>(null);
+  const [categories, setCategories] = useState<DbCategory[]>([]);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Basic fields
-  const [name, setName] = useState(product?.name ?? "");
-  const [brand, setBrand] = useState(product?.brand ?? "");
-  const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? categories[0]?.slug ?? "");
-  const [groupName, setGroupName] = useState(product?.group_name ?? "");
+  // Form fields
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [categorySlug, setCategorySlug] = useState("");
+  const [groupName, setGroupName] = useState("");
   const [groupOptions, setGroupOptions] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [slug, setSlug] = useState("");
+  const [autoSlug, setAutoSlug] = useState(isNew);
+  const [tagline, setTagline] = useState("");
+  const [intro, setIntro] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [overview, setOverview] = useState<KVPair[]>([]);
+  const [techSpecs, setTechSpecs] = useState<KVPair[]>([]);
+  const [sections, setSections] = useState<ProductSection[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [advantages, setAdvantages] = useState<Advantage[]>([]);
 
+  // Load product + categories from Hono API
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/product?id=${encodeURIComponent(params.id)}`)
+      .then((r) => r.json() as Promise<{ product: DbProduct | null; categories: DbCategory[] }>)
+      .then(({ product: p, categories: cats }) => {
+        setCategories(cats);
+        if (p) {
+          setProduct(p);
+          setName(p.name);
+          setBrand(p.brand);
+          setCategorySlug(p.category_slug);
+          setGroupName(p.group_name);
+          setDescription(p.description);
+          setSlug(p.slug);
+          setAutoSlug(false);
+          setTagline(p.tagline);
+          setIntro(p.intro);
+          setImageUrl(p.image_url);
+          setOverview(safeJSON(p.overview, []));
+          setTechSpecs(safeJSON(p.tech_specs, []));
+          setSections(safeJSON(p.sections, []));
+          setApplications(safeJSON(p.applications, []));
+          setAdvantages(safeJSON(p.advantages, []));
+        } else if (!isNew) {
+          setError("Product not found");
+        } else {
+          // New product — pre-select first category
+          if (cats.length > 0) setCategorySlug(cats[0].slug);
+        }
+        setLoading(false);
+      })
+      .catch(() => { setError("Failed to load"); setLoading(false); });
+  }, [params.id]);
+
+  // Load groups when category changes
   useEffect(() => {
     if (!categorySlug) return;
-    fetchGroups(categorySlug).then((groups) =>
-      setGroupOptions(groups.map((g) => g.name)),
-    );
+    fetchGroups(categorySlug).then((groups) => setGroupOptions(groups.map((g) => g.name)));
   }, [categorySlug]);
-  const [description, setDescription] = useState(product?.description ?? "");
-  const [slug, setSlug] = useState(product?.slug ?? "");
-  const [autoSlug, setAutoSlug] = useState(isNew);
-
-  // SEO / detail fields
-  const [tagline, setTagline] = useState(product?.tagline ?? "");
-  const [intro, setIntro] = useState(product?.intro ?? "");
-  const [imageUrl, setImageUrl] = useState(product?.image_url ?? "");
-
-  // Structured fields
-  const [overview, setOverview] = useState<KVPair[]>(
-    safeJSON(product?.overview ?? "[]", []),
-  );
-  const [techSpecs, setTechSpecs] = useState<KVPair[]>(
-    safeJSON(product?.tech_specs ?? "[]", []),
-  );
-  const [sections, setSections] = useState<ProductSection[]>(
-    safeJSON(product?.sections ?? "[]", []),
-  );
-  const [applications, setApplications] = useState<Application[]>(
-    safeJSON(product?.applications ?? "[]", []),
-  );
-  const [advantages, setAdvantages] = useState<Advantage[]>(
-    safeJSON(product?.advantages ?? "[]", []),
-  );
 
   // Auto-generate slug from name
   function handleNameChange(v: string) {
     setName(v);
-    if (autoSlug) {
-      setSlug(slugify(`${groupName || brand}-${v}`));
-    }
+    if (autoSlug) setSlug(slugify(`${groupName || brand}-${v}`));
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-sm text-slate-400">Loading…</div>
+      </div>
+    );
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -697,7 +686,7 @@ function ProductEditPage() {
               <div>
                 <div className="text-xs font-medium text-slate-500">Title tag</div>
                 <div className="mt-1 rounded bg-slate-50 px-3 py-2 text-xs text-slate-700">
-                  {name || "Product name"} — {selectedCategory?.name ?? "Category"} | BRYT Dental
+                  {name || "Product name"} — {categories.find(c => c.slug === categorySlug)?.name ?? "Category"} | BRYT Dental
                   Technologies
                 </div>
               </div>

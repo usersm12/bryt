@@ -1,26 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { dbGetStats } from "@/lib/db.server";
+import { useState, useEffect } from "react";
 import { Package, Tag, ImageIcon, FileText, ArrowRight } from "lucide-react";
 
-const getStats = createServerFn({ method: "GET" }).handler(() => dbGetStats());
+type Stats = { categories: number; products: number; withImages: number; withDetails: number };
 
 export const Route = createFileRoute("/admin/")({
-  loader: () => {
-    if (typeof window === "undefined") return getStats(); // SSR: DB direct
-    return fetch("/api/stats").then((r) => r.json()); // Client nav: Hono
-  },
   component: Dashboard,
 });
 
-function StatCard({ icon: Icon, label, value, sub, color = "text-primary" }: {
-  icon: React.ElementType; label: string; value: number; sub?: string; color?: string;
-}) {
+function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: number; sub?: string }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className={`inline-flex rounded-lg bg-primary/10 p-2 ${color}`}>
-        <Icon className="h-5 w-5" />
-      </div>
+      <div className="inline-flex rounded-lg bg-primary/10 p-2 text-primary"><Icon className="h-5 w-5" /></div>
       <div className="mt-4 text-3xl font-bold text-navy">{value}</div>
       <div className="mt-1 text-sm font-medium text-slate-700">{label}</div>
       {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
@@ -29,7 +20,12 @@ function StatCard({ icon: Icon, label, value, sub, color = "text-primary" }: {
 }
 
 function Dashboard() {
-  const stats = Route.useLoaderData();
+  const [stats, setStats] = useState<Stats>({ categories: 0, products: 0, withImages: 0, withDetails: 0 });
+
+  useEffect(() => {
+    fetch("/api/stats").then((r) => r.json() as Promise<Stats>).then(setStats).catch(() => {});
+  }, []);
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -39,10 +35,8 @@ function Dashboard() {
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Tag} label="Categories" value={stats.categories} />
         <StatCard icon={Package} label="Total Products" value={stats.products} />
-        <StatCard icon={ImageIcon} label="With Images" value={stats.withImages}
-          sub={`${stats.products - stats.withImages} missing images`} />
-        <StatCard icon={FileText} label="With Rich Details" value={stats.withDetails}
-          sub={`${stats.products - stats.withDetails} use generic description`} />
+        <StatCard icon={ImageIcon} label="With Images" value={stats.withImages} sub={`${stats.products - stats.withImages} missing images`} />
+        <StatCard icon={FileText} label="With Rich Details" value={stats.withDetails} sub={`${stats.products - stats.withDetails} use generic description`} />
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -53,8 +47,7 @@ function Dashboard() {
               { to: "/admin/categories" as const, label: "Manage Categories" },
               { to: "/admin/products/new" as const, label: "Add New Product" },
             ]).map((item) => (
-              <Link key={item.to} to={item.to}
-                className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm font-medium text-slate-700 hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
+              <Link key={item.to} to={item.to} className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm font-medium text-slate-700 hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
                 {item.label}<ArrowRight className="h-4 w-4" />
               </Link>
             ))}

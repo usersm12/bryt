@@ -1,45 +1,44 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { dbListProducts, type DbProduct } from "@/lib/db.server";
+import { useState, useEffect } from "react";
+import type { DbProduct } from "@/lib/db.server";
 import { Plus, Pencil, Trash2, Search, Image } from "lucide-react";
 
-const listProducts = createServerFn({ method: "GET" })
-  .handler(() => dbListProducts());
-
 export const Route = createFileRoute("/admin/products")({
-  loader: () => {
-    if (typeof window === "undefined") return listProducts(); // SSR: DB direct
-    return fetch("/api/products").then((r) => r.json()) as Promise<DbProduct[]>; // Client nav: Hono
-  },
   component: ProductsPage,
 });
 
 function ProductsPage() {
-  const products = Route.useLoaderData();
+  const [products, setProducts] = useState<DbProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("");
   const router = useRouter();
 
+  function load() {
+    setLoading(true);
+    fetch("/api/products")
+      .then((r) => r.json() as Promise<DbProduct[]>)
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }
+
+  useEffect(load, []);
+
   const categories = [...new Set(products.map((p) => p.category_slug))].sort();
   const filtered = products.filter((p) => {
-    const matchSearch = !search ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase()) ||
-      p.group_name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = !filterCat || p.category_slug === filterCat;
-    return matchSearch && matchCat;
+    const s = search.toLowerCase();
+    const matchSearch = !search || p.name.toLowerCase().includes(s) ||
+      p.brand.toLowerCase().includes(s) || p.group_name.toLowerCase().includes(s);
+    return matchSearch && (!filterCat || p.category_slug === filterCat);
   });
 
   async function handleDelete(p: DbProduct) {
     if (!confirm(`Delete "${p.name}"?`)) return;
-    // Mutation: Hono API (plain JSON, no Seroval)
     await fetch("/api/product/delete", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+      method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ slug: p.slug }),
     });
-    router.invalidate();
+    load();
   }
 
   return (
@@ -47,13 +46,16 @@ function ProductsPage() {
       <div className="mb-6 flex flex-wrap items-center gap-4">
         <div className="flex-1">
           <h1 className="font-display text-2xl font-bold text-navy">Products</h1>
-          <p className="mt-1 text-sm text-slate-500">{filtered.length} of {products.length} products</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {loading ? "Loading…" : `${filtered.length} of ${products.length} products`}
+          </p>
         </div>
         <Link to="/admin/products/new"
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">
           <Plus className="h-4 w-4" /> Add Product
         </Link>
       </div>
+
       <div className="mb-5 flex flex-wrap gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -67,6 +69,7 @@ function ProductsPage() {
           {categories.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
+
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead className="border-b border-slate-100 bg-slate-50">
@@ -78,7 +81,10 @@ function ProductsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filtered.length === 0 && (
+            {loading && (
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">Loading products…</td></tr>
+            )}
+            {!loading && filtered.length === 0 && (
               <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">No products found</td></tr>
             )}
             {filtered.map((p) => (
@@ -86,13 +92,9 @@ function ProductsPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                      {p.image_url ? (
-                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Image className="h-4 w-4 text-slate-300" />
-                        </div>
-                      )}
+                      {p.image_url
+                        ? <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
+                        : <div className="flex h-full w-full items-center justify-center"><Image className="h-4 w-4 text-slate-300" /></div>}
                     </div>
                     <div>
                       <div className="font-medium text-navy">{p.name}</div>
