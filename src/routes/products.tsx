@@ -1,9 +1,16 @@
 import { createFileRoute, Link, Outlet, useMatches } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { Layout } from "@/components/site/Layout";
 import { PageHero } from "@/components/site/PageHero";
-import { categories } from "@/lib/products";
+import { dbGetCategories, type Category } from "@/lib/db.server";
+
+const loadCategories = createServerFn({ method: "GET" }).handler(() => dbGetCategories());
 
 export const Route = createFileRoute("/products")({
+  loader: () => {
+    if (typeof window === "undefined") return loadCategories();
+    return fetch("/api/public/categories").then((r) => r.json()) as Promise<Category[]>;
+  },
   head: () => ({
     meta: [
       { title: "Products — BRYT Dental Technologies" },
@@ -14,6 +21,7 @@ export const Route = createFileRoute("/products")({
 });
 
 function ProductsLayout() {
+  const categories = (Route.useLoaderData() ?? []) as Category[];
   const matches = useMatches();
   const isIndex = matches[matches.length - 1]?.routeId === "/products";
 

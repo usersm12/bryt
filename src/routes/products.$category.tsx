@@ -1,11 +1,22 @@
 import { createFileRoute, Link, notFound, Outlet, useMatches } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
 import { PageHero } from "@/components/site/PageHero";
-import { getCategory, type Category, type ProductGroup, type Product } from "@/lib/products";
+import { dbGetCategory, type Category, type ProductGroup, type Product } from "@/lib/db.server";
 import { ChevronRight, Package } from "lucide-react";
 
+const loadCategory = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => d as { slug: string })
+  .handler(({ data }) => dbGetCategory(data?.slug ?? ""));
+
 export const Route = createFileRoute("/products/$category")({
-  loader: ({ params }): { category: Category } => {
-    const category = getCategory(params.category);
+  loader: async ({ params }) => {
+    let category: Category | undefined;
+    if (typeof window === "undefined") {
+      category = await loadCategory({ data: { slug: params.category } });
+    } else {
+      const res = await fetch(`/api/public/category?slug=${encodeURIComponent(params.category)}`);
+      category = res.ok ? await res.json() : undefined;
+    }
     if (!category) throw notFound();
     return { category };
   },

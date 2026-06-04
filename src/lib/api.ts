@@ -118,3 +118,29 @@ api.get("/api/stats", async (c) => {
   const stats = await dbGetStats();
   return c.json(stats);
 });
+
+// ─── Public site data (reads from D1, used by /products/* pages) ─────────────
+
+import { dbGetCategories, dbGetCategory, dbGetProduct } from "./db.server";
+
+api.get("/api/public/categories", async (c) => {
+  const cats = await dbGetCategories();
+  return c.json(cats);
+});
+
+api.get("/api/public/category", async (c) => {
+  const slug = c.req.query("slug") ?? "";
+  const cat = await dbGetCategory(slug);
+  return cat ? c.json(cat) : c.json(null, 404);
+});
+
+api.get("/api/public/product", async (c) => {
+  const categorySlug = c.req.query("category") ?? "";
+  const productSlug = c.req.query("product") ?? "";
+  const [result, category] = await Promise.all([
+    dbGetProduct(categorySlug, productSlug),
+    dbGetCategory(categorySlug),
+  ]);
+  if (!result || !category) return c.json(null, 404);
+  return c.json({ category, product: result.product, details: result.details });
+});
