@@ -9,8 +9,8 @@ export function Footer() {
         {/* Logo + tagline */}
         <div>
           {/* White pill behind logo so it reads on the dark navy background */}
-          <div className="inline-block rounded-xl bg-white px-4 py-2">
-            <img src={brytLogo} alt="BRYT Dental Technologies" className="h-12 w-auto" />
+          <div className="inline-block rounded-2xl bg-white px-5 py-3 shadow-lg">
+            <img src={brytLogo} alt="BRYT Dental Technologies" className="h-14 w-auto" />
           </div>
           <p className="mt-4 text-sm text-navy-foreground/70">
             Your Dental Technologist. Precision equipment, expert guidance, and end-to-end clinic solutions.
